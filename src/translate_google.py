@@ -5,6 +5,8 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 import logging
 import time
+from pathlib import Path
+from tkinter import Tk, filedialog
 
 logging.basicConfig(level=logging.INFO)
 translator = Translator()
@@ -69,26 +71,46 @@ def save_review(index, review, sentiment, writer, failed_writer):
     logging.info(f"Processed index: {index} by: {thread_name} in {end-start} seconds.")
 
 
-df = pd.read_csv("IMDB Dataset copy.csv")
-reviews = df["review"]
-sentiments = df["sentiment"]
+def main():
+    root = Tk()
+    root.withdraw()
 
-with open(
-    "IMDB-Dataset-GoogleTranslate.csv", "a", newline="", encoding="utf-8"
-) as trans_file, open(
-    "failed-IMDB-Dataset-GoogleTranslate.csv", "a", newline="", encoding="utf-8"
-) as failed_file:
-    writer = csv.writer(trans_file)
-    writer.writerow(["review", "sentiment"])
+    print("Select the Dataset File")
+    dataset = filedialog.askopenfilename(
+        title="Select the Dataset File", filetypes=[("CSV files", "*.csv")]
+    )
+    if not dataset or not Path(dataset).exists() or not Path(dataset).is_file():
+        print("Invalid dataset path")
+        return
 
-    failed_writer = csv.writer(failed_file)
-    failed_writer.writerow(["review", "sentiment"])
+    try:
+        df = pd.read_csv(dataset)
+        reviews = df["review"]
+        sentiments = df["sentiment"]
+    except Exception:
+        print("Invalid dataset")
+        return
 
-    start = time.time()
-    with ThreadPoolExecutor() as executor:
-        for index, (review, sentiment) in enumerate(zip(reviews, sentiments)):
-            executor.submit(
-                save_review, index, review, sentiment, writer, failed_writer
-            )
-    end = time.time()
-    print(f"Time taken: {end-start}")
+    with open(
+        "IMDB-Dataset-GoogleTranslate.csv", "a", newline="", encoding="utf-8"
+    ) as trans_file, open(
+        "failed-IMDB-Dataset-GoogleTranslate.csv", "a", newline="", encoding="utf-8"
+    ) as failed_file:
+        writer = csv.writer(trans_file)
+        writer.writerow(["review", "sentiment"])
+
+        failed_writer = csv.writer(failed_file)
+        failed_writer.writerow(["review", "sentiment"])
+
+        start = time.time()
+        with ThreadPoolExecutor() as executor:
+            for index, (review, sentiment) in enumerate(zip(reviews, sentiments)):
+                executor.submit(
+                    save_review, index, review, sentiment, writer, failed_writer
+                )
+        end = time.time()
+        print(f"Time taken: {end-start}")
+
+
+if __name__ == "__main__":
+    main()
