@@ -1,0 +1,16 @@
+name: Black check
+
+on: [push, pull_request]
+
+jobs:
+  black-check:
+    runs-on: ubuntu-latest
+    name: Black
+    steps:
+      - uses: actions/checkout@v3
+      - uses: psf/black@stable
+        with:
+          options: "--check --verbose"
+          src: "./src"
+          jupyter: true
+          version: "22.3.0"
