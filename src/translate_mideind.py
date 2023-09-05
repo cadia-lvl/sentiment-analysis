@@ -8,10 +8,10 @@ import time
 device = torch.cuda.current_device() if torch.cuda.is_available() else -1
 
 tokenizer = AutoTokenizer.from_pretrained(
-    "../nmt-doc-en-is-2022-10", src_lang="en_XX", tgt_lang="is_IS"
+    "../../nmt-doc-en-is-2022-10", src_lang="en_XX", tgt_lang="is_IS"
 )
 
-model = AutoModelForSeq2SeqLM.from_pretrained("../nmt-doc-en-is-2022-10")
+model = AutoModelForSeq2SeqLM.from_pretrained("../../nmt-doc-en-is-2022-10")
 
 translate = pipeline(
     "translation_XX_to_YY",
