@@ -10,7 +10,6 @@ g = Greynir()
 
 class TextNormalizer:
 
-    # TODO: add stop_words
 
     def tokenize(self, txt, lower_case = True):
         if lower_case:
@@ -38,8 +37,3 @@ class TextNormalizer:
 
     def process(self, txt):
         return self.lemmatize(self.tokenize(self.remove_stop_words(txt)))
-
-t = TextNormalizer()
-
-test = t.process("Ég er að prufa að búa til tóka fyrir þennan texta")
-print(test)
