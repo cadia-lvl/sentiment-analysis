@@ -52,8 +52,10 @@ class TextNormalizer:
         return txt
 
     def process(self, txt):
-        return self.lemmatize(self.tokenize(self.remove_stop_words(txt)))
+        try:
+            return self.lemmatize(self.tokenize(self.remove_stop_words(txt)))
+        except Exception as err:
+            print("Could not lemmatize")
+            return txt
 
 
-t = TextNormalizer()
-print(t.process("Prófa að vinna texta"))
