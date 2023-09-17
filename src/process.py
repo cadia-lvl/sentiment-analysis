@@ -57,5 +57,3 @@ class TextNormalizer:
         except Exception as err:
             print("Could not lemmatize")
             return txt
-
-
