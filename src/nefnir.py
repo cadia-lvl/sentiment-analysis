@@ -8,7 +8,7 @@ import os
 import sys
 import time
 
-FORMAT = '%(asctime)s - %(levelname)s %(message)s'
+FORMAT = "%(asctime)s - %(levelname)s %(message)s"
 logging.basicConfig(level=logging.INFO, format=FORMAT)
 logger = logging.getLogger(__name__)
 
@@ -17,6 +17,7 @@ class Nefnir(object):
     """
     A rule-based lemmatizer
     """
+
     def __init__(self):
         """
         Initialize an instance of the Nefnir lemmatizer.
@@ -24,19 +25,21 @@ class Nefnir(object):
         nefnir_dir = os.path.dirname(sys.argv[0])
 
         # Load rules
-        rules_path = os.path.join(nefnir_dir, 'rules.json')
+        rules_path = os.path.join(nefnir_dir, "rules.json")
 
-        with open(rules_path, encoding='utf-8') as f:
+        with open(rules_path, encoding="utf-8") as f:
             self.rules = json.load(f)
 
         # Load tagset
-        tag_path = os.path.join(nefnir_dir, 'tags.json')
+        tag_path = os.path.join(nefnir_dir, "tags.json")
 
-        with open(tag_path, encoding='utf-8') as f:
+        with open(tag_path, encoding="utf-8") as f:
             self.tagmap = json.load(f)
 
-        self.proper = {t for t in self.tagmap if t[0] == 'n' and t[-1] in {'m', 'ö', 's'}}
-        self.unanalyzed = {t for t in self.tagmap if t[:2] == 'nx'} | {'x', 'e', 'as'}
+        self.proper = {
+            t for t in self.tagmap if t[0] == "n" and t[-1] in {"m", "ö", "s"}
+        }
+        self.unanalyzed = {t for t in self.tagmap if t[:2] == "nx"} | {"x", "e", "as"}
 
     def lemmatize(self, form, tag):
         """
@@ -54,7 +57,7 @@ class Nefnir(object):
             return form
 
         # Websites and interjections
-        if tag in {'v', 'au'}:
+        if tag in {"v", "au"}:
             return form.lower()
 
         # Unanalyzed words
@@ -62,7 +65,7 @@ class Nefnir(object):
             return form
 
         # Words that end with a hyphen
-        if form[-1] == '-':
+        if form[-1] == "-":
             if tag in self.proper:
                 return self.recase(form, tag, form)
             return form.lower()
@@ -77,24 +80,29 @@ class Nefnir(object):
             logger.debug("No rules for this tag: {} {} {}".format(form, tag, ntag))
             return self.recase(form, tag, form)
 
-        if form_lower in self.rules[ntag]['form']:
-            suffix_from, suffix_to = self.rules[ntag]['form'][form_lower]
+        if form_lower in self.rules[ntag]["form"]:
+            suffix_from, suffix_to = self.rules[ntag]["form"][form_lower]
         else:
             suffixes = get_suffixes(form_lower)
 
             try:
-                target = next(s for s in suffixes if s in self.rules[ntag]['suffix'])
-                suffix_from, suffix_to = self.rules[ntag]['suffix'][target]
+                target = next(s for s in suffixes if s in self.rules[ntag]["suffix"])
+                suffix_from, suffix_to = self.rules[ntag]["suffix"][target]
             except StopIteration:
-                logger.debug("No rules for this word form: {} {} {}".format(form, tag, ntag))
+                logger.debug(
+                    "No rules for this word form: {} {} {}".format(form, tag, ntag)
+                )
                 return self.recase(form, tag, form)
 
-        form_prefix = form_lower[:-len(suffix_from)] if suffix_from else form_lower
+        form_prefix = form_lower[: -len(suffix_from)] if suffix_from else form_lower
         lemma = form_prefix + suffix_to
 
         if not lemma:
-            logger.warning("Rule produced an empty lemma: ({}, {}, {}) ('{}' -> '{}')".format(form, tag, ntag,
-                                                                                              suffix_from, suffix_to))
+            logger.warning(
+                "Rule produced an empty lemma: ({}, {}, {}) ('{}' -> '{}')".format(
+                    form, tag, ntag, suffix_from, suffix_to
+                )
+            )
             lemma = form_lower
 
         return self.recase(form, tag, lemma)
@@ -115,9 +123,9 @@ class Nefnir(object):
         #   1) (DNA-þræðinum, nþeþg) -> dna-þráður -> DNA-þráður
         #   2) (Vestur-Íslendingum, nkfþ-s) -> vestur-íslendingur -> Vestur-Íslendingur
         #   3) (Stoke-on-Trent, e) -> stoke-on-trent -> Stoke-on-Trent
-        if '-' in form[1:-1]:
-            fparts = form.split('-')
-            lparts = lemma.split('-')
+        if "-" in form[1:-1]:
+            fparts = form.split("-")
+            lparts = lemma.split("-")
 
             result = []
             for fpart, lpart in zip(fparts, lparts):
@@ -164,23 +172,41 @@ def get_suffixes(s):
 def main():
     # Command line interface
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--input-file", help="read input from specified file", required=True)
-    parser.add_argument("-o", "--output-file", help="write output to specified file", required=True)
-    parser.add_argument("-f", "--from-encoding", help="character encoding of input file (default: utf-8)",
-                        default="utf-8")
-    parser.add_argument("-t", "--to-encoding", help="character encoding of output file (default: utf-8)",
-                        default="utf-8")
-    parser.add_argument("-s", "--separator", help="the string separating word forms, tags and lemmas (default: \\t)",
-                        default='\t')
+    parser.add_argument(
+        "-i", "--input-file", help="read input from specified file", required=True
+    )
+    parser.add_argument(
+        "-o", "--output-file", help="write output to specified file", required=True
+    )
+    parser.add_argument(
+        "-f",
+        "--from-encoding",
+        help="character encoding of input file (default: utf-8)",
+        default="utf-8",
+    )
+    parser.add_argument(
+        "-t",
+        "--to-encoding",
+        help="character encoding of output file (default: utf-8)",
+        default="utf-8",
+    )
+    parser.add_argument(
+        "-s",
+        "--separator",
+        help="the string separating word forms, tags and lemmas (default: \\t)",
+        default="\t",
+    )
     args = parser.parse_args()
 
-    args.separator = codecs.decode(args.separator, 'unicode_escape')
+    args.separator = codecs.decode(args.separator, "unicode_escape")
 
     # Lemmatize input
     time_start = time.time()
     nefnir = Nefnir()
 
-    logger.info("Reading input from {} ({})".format(args.input_file, args.from_encoding))
+    logger.info(
+        "Reading input from {} ({})".format(args.input_file, args.from_encoding)
+    )
     logger.info("Separator set to {}".format(repr(args.separator)))
 
     with open(args.input_file, encoding=args.from_encoding) as f:
@@ -196,24 +222,26 @@ def main():
                 lines[line] = args.separator.join((form, tag, lemma))
         except ValueError:
             if line.strip():
-                logger.warning('Ignoring line: {}'.format(line))
+                logger.warning("Ignoring line: {}".format(line))
 
     # Stats
     time_elapsed = time.time() - time_start
     lines_per_second = num_lines / time_elapsed
-    stats = "{:,} lines processed in {:.2f} s ({:,.1f} lines/s)".format(num_lines, time_elapsed, lines_per_second)
+    stats = "{:,} lines processed in {:.2f} s ({:,.1f} lines/s)".format(
+        num_lines, time_elapsed, lines_per_second
+    )
     logger.info(stats)
 
     # Write output
     logger.info("Writing output to {} ({})".format(args.output_file, args.to_encoding))
 
     with open(args.input_file, encoding=args.from_encoding) as f_in:
-        with open(args.output_file, 'w', encoding=args.to_encoding) as f_out:
+        with open(args.output_file, "w", encoding=args.to_encoding) as f_out:
             for line in f_in:
-                line = line.rstrip('\n')
-                output = lines[line] or ''
-                f_out.write(output + '\n')
+                line = line.rstrip("\n")
+                output = lines[line] or ""
+                f_out.write(output + "\n")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
