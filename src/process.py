@@ -6,6 +6,12 @@ g = Greynir()
 
 
 class TextNormalizer:
+    def __init__(self):
+        self.stop_words = None
+        with open("./all_stop_words.txt") as f:
+            self.stop_words = f.readlines()
+            self.stop_words = [stop_word.replace("\n", "") for stop_word in self.stop_words]
+            
     def tokenize(self, txt, lower_case=True):
         if lower_case:
             txt = txt.lower()
@@ -23,11 +29,7 @@ class TextNormalizer:
         return " ".join(output)
 
     def remove_stop_words(self, txt):
-        stop_words = None
-        with open("./src/all_stop_words.txt") as f:
-            stop_words = f.readlines()
-            stop_words = [stop_word.replace("\n", "") for stop_word in stop_words]
-        return " ".join([t for t in txt.split(" ") if t not in stop_words])
+        return " ".join([t for t in txt.split(" ") if t not in self.stop_words])
 
     def clean_html(self, txt):
         clean = re.compile("<.*?>")
@@ -52,8 +54,4 @@ class TextNormalizer:
         return txt
 
     def process(self, txt):
-        try:
-            return self.lemmatize(self.tokenize(self.remove_stop_words(txt)))
-        except Exception as err:
-            print("Could not lemmatize")
-            return txt
+        return self.lemmatize(self.tokenize(self.remove_stop_words(txt)))
