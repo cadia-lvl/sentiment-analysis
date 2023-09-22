@@ -8,7 +8,7 @@ g = Greynir()
 class TextNormalizer:
     def __init__(self):
         self.stop_words = None
-        with open("src/all_stop_words.txt") as f:
+        with open("./all_stop_words.txt") as f:
             self.stop_words = f.readlines()
             self.stop_words = [
                 stop_word.replace("\n", "") for stop_word in self.stop_words
@@ -37,7 +37,9 @@ class TextNormalizer:
                 else:
                     token = token + "_NEG"
             negated_txt.append(token)
-        return " ".join(negated_txt)
+        txt = re.sub(r" ([?.!,“;])", r"\1", " ".join(negated_txt))
+        txt = re.sub(r"([„])([\s])", r"\1", txt)
+        return re.sub("([?.!,;“„])", r"", txt)
 
     def tokenize(self, txt, lower_case=True):
         if lower_case:

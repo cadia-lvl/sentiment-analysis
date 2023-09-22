@@ -31,7 +31,8 @@ def initialize_model(folder):
 
 
 def machine_translate_review(review, index, tokenizer, translate):
-    review = review.replace("<br />", " ")
+    clean = re.compile("<.*?>")
+    review = re.sub(clean, "", review)
     # Replace multiple punctuations with a single one
     review = re.sub(r"([.!?])\1+", r"\1", review)
 
