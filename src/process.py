@@ -1,5 +1,5 @@
 from reynir import Greynir
-import tokenizer
+from nltk.tokenize import word_tokenize
 import re
 
 g = Greynir()
@@ -8,25 +8,55 @@ g = Greynir()
 class TextNormalizer:
     def __init__(self):
         self.stop_words = None
-        with open("./all_stop_words.txt") as f:
+        with open("src/all_stop_words.txt") as f:
             self.stop_words = f.readlines()
-            self.stop_words = [stop_word.replace("\n", "") for stop_word in self.stop_words]
-            
+            self.stop_words = [
+                stop_word.replace("\n", "") for stop_word in self.stop_words
+            ]
+
+    def mark_negation(self, tokens):
+        negation_words = [
+            "ekki",
+            "aldrei",
+            "engin",
+            "hvorugt",
+            "hvorki",
+            "enginn",
+        ]
+        negation_scope = False
+        negated_txt = []
+        for token in tokens:
+            if token in negation_words:
+                negation_scope = True
+                negated_txt.append(token)
+                continue
+
+            if negation_scope:
+                if re.match(r"[.?!;,]", token):
+                    negation_scope = False
+                else:
+                    token = token + "_NEG"
+            negated_txt.append(token)
+        return " ".join(negated_txt)
+
     def tokenize(self, txt, lower_case=True):
         if lower_case:
             txt = txt.lower()
-        tokens = tokenizer.tokenize(txt)
-        return [token.txt for token in tokens if token.kind == tokenizer.TOK.WORD]
+        return word_tokenize(txt)
 
     def lemmatize(self, tokens):
         output = []
         for filtered_token in tokens:
             parsed_token = g.parse_single(filtered_token)
-            if parsed_token.tree is None or parsed_token.lemmas is None:
+            if (
+                not parsed_token
+                or parsed_token.tree is None
+                or parsed_token.lemmas is None
+            ):
                 output.append(filtered_token)
             else:
-                output.append(parsed_token.lemmas.pop())
-        return " ".join(output)
+                output.append("".join(parsed_token.lemmas))
+        return output
 
     def remove_stop_words(self, txt):
         return " ".join([t for t in txt.split(" ") if t not in self.stop_words])
@@ -54,4 +84,12 @@ class TextNormalizer:
         return txt
 
     def process(self, txt):
-        return self.lemmatize(self.tokenize(self.remove_stop_words(txt)))
+        return self.mark_negation(
+            self.lemmatize(self.tokenize(self.remove_stop_words(txt)))
+        )
+
+
+if __name__ == "__main__":
+    txt = "Ég er ekki sáttur með þetta. Þetta er ekki gott."
+    tn = TextNormalizer()
+    print(tn.process(txt))
