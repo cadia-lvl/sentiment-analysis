@@ -34,10 +34,10 @@ def machine_translate_review(review, index, tokenizer, translate):
     clean = re.compile("<.*?>")
     review = re.sub(clean, "", review)
     # Replace multiple punctuations with a single one
-    review = re.sub(r"([.!?])\1+", r"\1", review)
+    review = re.sub(r"([.!?,])\1+", r"\1", review)
 
     # Ensure there's a space after punctuation
-    review = re.sub(r"([.!?])([^\s])", r"\1 \2", review)
+    review = re.sub(r"([.!?,])([^\s])", r"\1 \2", review)
 
     # Remove *** from the text
     review = review.replace("*", "")
