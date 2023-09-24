@@ -162,3 +162,5 @@ cython_debug/
 # English IMDB sentiment dataset
 src/aclImdb/
 src/aclImdb_v1.tar.gz
+aclImdb/
+aclImdb_v1.tar.gz

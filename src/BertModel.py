@@ -103,7 +103,7 @@ def convert_examples_to_tf_dataset(examples, tokenizer, max_length=128):
             max_length=max_length,  # truncates if len(s) > max_length
             return_token_type_ids=True,
             return_attention_mask=True,
-            pad_to_max_length=True,  # pads to the right by default # CHECK THIS for pad_to_max_length
+            padding='max_length',  # pads to the right by default # CHECK THIS for pad_to_max_length
             truncation=True,
         )
 
@@ -157,10 +157,10 @@ def convert_examples_to_tf_dataset(examples, tokenizer, max_length=128):
 DATA_COLUMN = "DATA_COLUMN"
 LABEL_COLUMN = "LABEL_COLUMN"
 
-InputExample(guid=None,
-             text_a = "Hello, world",
-             text_b = None,
-             label = 1)
+# InputExample(guid=None,
+#              text_a = "Hello, world",
+#              text_b = None,
+#              label = 1)
 
 train_InputExamples, validation_InputExamples = convert_data_to_examples(train, test, DATA_COLUMN, LABEL_COLUMN)
 
@@ -169,3 +169,22 @@ train_data = train_data.shuffle(100).batch(32).repeat(2)
 
 validation_data = convert_examples_to_tf_dataset(list(validation_InputExamples), tokenizer)
 validation_data = validation_data.batch(32)
+
+
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=3e-5, epsilon=1e-08, clipnorm=1.0), 
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), 
+              metrics=[tf.keras.metrics.SparseCategoricalAccuracy('accuracy')])
+
+model.fit(train_data, epochs=2, validation_data=validation_data)
+
+pred_sentences = ['This was an awesome movie. I watch it twice my time watching this beautiful movie if I have known it was this good',
+                  'One of the worst movies of all time. I cannot believe I wasted two hours of my life for this movie']
+
+tf_batch = tokenizer(pred_sentences, max_length=128, padding=True, truncation=True, return_tensors='tf')
+tf_outputs = model(tf_batch)
+tf_predictions = tf.nn.softmax(tf_outputs[0], axis=-1)
+labels = ['Negative','Positive']
+label = tf.argmax(tf_predictions, axis=1)
+label = label.numpy()
+for i in range(len(pred_sentences)):
+  print(pred_sentences[i], ": \n", labels[label[i]])
