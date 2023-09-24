@@ -10,8 +10,10 @@ class TextNormalizer:
         self.stop_words = None
         with open("./all_stop_words.txt") as f:
             self.stop_words = f.readlines()
-            self.stop_words = [stop_word.replace("\n", "") for stop_word in self.stop_words]
-            
+            self.stop_words = [
+                stop_word.replace("\n", "") for stop_word in self.stop_words
+            ]
+
     def tokenize(self, txt, lower_case=True):
         if lower_case:
             txt = txt.lower()
