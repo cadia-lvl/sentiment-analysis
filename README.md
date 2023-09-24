@@ -1,5 +1,5 @@
 # Viðhorfsgreining á íslenskum texta
-
+(Sentiment-Analysis on Icelandic text)
 
 
 
