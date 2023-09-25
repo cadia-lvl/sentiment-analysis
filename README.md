@@ -15,5 +15,4 @@ MIT
 
 Ólafur Aron Jóhannsson \
 Eysteinn Örn \
-Birkir Arndal \
-Júlíus Grettir Margrétarson
+Birkir Arndal 
