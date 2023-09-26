@@ -2,7 +2,7 @@ from transformers import BertTokenizer, BertForSequenceClassification
 from transformers import Trainer, TrainingArguments
 from sklearn.model_selection import train_test_split
 import pandas as pd
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 from torch.utils.tensorboard import SummaryWriter
 import torch
 
