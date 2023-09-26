@@ -1,5 +1,5 @@
 # Viðhorfsgreining á íslenskum texta
-
+(Sentiment-Analysis on Icelandic text)
 
 
 
@@ -15,5 +15,4 @@ MIT
 
 Ólafur Aron Jóhannsson \
 Eysteinn Örn \
-Birkir Arndal \
-Júlíus Grettir Margrétarson
+Birkir Arndal 

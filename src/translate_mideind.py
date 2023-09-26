@@ -6,6 +6,7 @@ import logging
 import time
 from pathlib import Path
 from tkinter import Tk, filedialog
+import re
 
 logging.basicConfig(level=logging.INFO)
 
@@ -30,22 +31,35 @@ def initialize_model(folder):
 
 
 def machine_translate_review(review, index, tokenizer, translate):
-    review = review.replace("<br />", "")
-    token_length = len(tokenizer.encode(review))
-    if token_length < 1025:  # 1024 is the max length supported by the model
-        try:
+    clean = re.compile("<.*?>")
+    review = re.sub(clean, "", review)
+    # Replace multiple punctuations with a single one
+    review = re.sub(r"([.!?,])\1+", r"\1", review)
+
+    # Ensure there's a space after punctuation
+    review = re.sub(r"([.!?,])([^\s])", r"\1 \2", review)
+
+    # Remove *** from the text
+    review = review.replace("*", "")
+
+    # token_length = len(tokenizer.encode(review))
+    # if token_length < 1025:  # 1024 is the max length supported by the model
+    try:
+        translated_chunks = []
+        for chunk in smart_split(review, tokenizer):
             target_seq = translate(
-                review, src_lang="en_XX", tgt_lang="is_IS", max_length=1024
+                chunk, src_lang="en_XX", tgt_lang="is_IS", max_length=1024
             )
-            return target_seq[0]["translation_text"].strip("YY ")
-        except Exception as e:
-            logging.warning(f"Translation failed for index: {index} with error: {e}")
-            return None
-    else:
-        logging.warning(
-            f"Token length too long for index: {index} with length: {token_length}"
-        )
+            translated_chunks.append(target_seq[0]["translation_text"].strip("YY "))
+        return " ".join(translated_chunks)
+    except Exception as e:
+        logging.warning(f"Translation failed for index: {index} with error: {e}")
         return None
+    # else:
+    #     logging.warning(
+    #         f"Token length too long for index: {index} with length: {token_length}"
+    #     )
+    #     return None
 
 
 def save_review(index, review, sentiment, writer, failed_writer, tokenizer, translate):
@@ -58,6 +72,32 @@ def save_review(index, review, sentiment, writer, failed_writer, tokenizer, tran
         writer.writerow([translated_review, sentiment])
     end = time.time()
     logging.info(f"Processed index: {index} in {end-start} seconds.")
+
+
+def smart_split(text, tokenizer, limit=128):
+    raw_sentences = re.split("([.!?])", text)
+    sentences = ["".join(x) for x in zip(raw_sentences[::2], raw_sentences[1::2])]
+
+    if len(raw_sentences) % 2 == 1:
+        sentences.append(raw_sentences[-1])
+
+    chunks = []
+    current_chunk = []
+    current_length = 0
+
+    for sentence in sentences:
+        sentence_length = len(tokenizer.encode(sentence))
+        if current_length + sentence_length <= limit:
+            current_length += sentence_length
+            current_chunk.append(sentence)
+        else:
+            chunks.append(" ".join(current_chunk))
+            current_chunk = [sentence]
+            current_length = sentence_length
+
+    chunks.append(" ".join(current_chunk))
+
+    return chunks
 
 
 def main():
