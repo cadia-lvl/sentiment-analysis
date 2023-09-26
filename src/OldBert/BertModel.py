@@ -12,11 +12,11 @@ tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
 model.summary()
 
-URL = "https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"
+# URL = "https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"
 
-dataset = tf.keras.utils.get_file(
-    fname="aclImdb_v1.tar.gz", origin=URL, untar=True, cache_dir=".", cache_subdir=""
-)
+# dataset = tf.keras.utils.get_file(
+#     fname="aclImdb_v1.tar.gz", origin=URL, untar=True, cache_dir=".", cache_subdir=""
+# )
 # Get the dataset "IMDB-Dataset.csv" from local folder.
 
 dataset = tf.keras.utils.get_file(
