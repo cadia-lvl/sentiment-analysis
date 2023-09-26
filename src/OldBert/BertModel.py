@@ -17,11 +17,16 @@ URL = "https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz"
 dataset = tf.keras.utils.get_file(
     fname="aclImdb_v1.tar.gz", origin=URL, untar=True, cache_dir=".", cache_subdir=""
 )
+# Get the dataset "IMDB-Dataset.csv" from local folder.
+
+dataset = tf.keras.utils.get_file(
+    fname="IMDB-Dataset.csv", cache_dir=".", cache_subdir=""
+)
 # The shutil module offers a number of high-level
 # operations on files and collections of files.
 
 # Create main directory path ("/aclImdb")
-main_dir = os.path.join(os.path.dirname(dataset), "aclImdb")
+main_dir = os.path.join(os.path.dirname(dataset), "IMDB-Dataset-English")
 # Create sub directory path ("/aclImdb/train")
 train_dir = os.path.join(main_dir, "train")
 # Remove unsup folder since this is a supervised learning task
@@ -34,10 +39,14 @@ print(os.listdir(train_dir))
 # We create a training dataset and a validation
 # dataset from our "aclImdb/train" directory with a 80/20 split.
 train = tf.keras.preprocessing.text_dataset_from_directory(
-    "aclImdb/train", batch_size=30000, validation_split=0.2, subset="training", seed=123
+    "IMDB-Dataset-English/train",
+    batch_size=30000,
+    validation_split=0.2,
+    subset="training",
+    seed=123,
 )
 test = tf.keras.preprocessing.text_dataset_from_directory(
-    "aclImdb/train",
+    "IMDB-Dataset-English/train",
     batch_size=30000,
     validation_split=0.2,
     subset="validation",
@@ -103,7 +112,7 @@ def convert_examples_to_tf_dataset(examples, tokenizer, max_length=128):
             max_length=max_length,  # truncates if len(s) > max_length
             return_token_type_ids=True,
             return_attention_mask=True,
-            padding='max_length',  # pads to the right by default # CHECK THIS for pad_to_max_length
+            padding="max_length",  # pads to the right by default # CHECK THIS for pad_to_max_length
             truncation=True,
         )
 
@@ -162,29 +171,39 @@ LABEL_COLUMN = "LABEL_COLUMN"
 #              text_b = None,
 #              label = 1)
 
-train_InputExamples, validation_InputExamples = convert_data_to_examples(train, test, DATA_COLUMN, LABEL_COLUMN)
+train_InputExamples, validation_InputExamples = convert_data_to_examples(
+    train, test, DATA_COLUMN, LABEL_COLUMN
+)
 
 train_data = convert_examples_to_tf_dataset(list(train_InputExamples), tokenizer)
 train_data = train_data.shuffle(100).batch(32).repeat(2)
 
-validation_data = convert_examples_to_tf_dataset(list(validation_InputExamples), tokenizer)
+validation_data = convert_examples_to_tf_dataset(
+    list(validation_InputExamples), tokenizer
+)
 validation_data = validation_data.batch(32)
 
 
-model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=3e-5, epsilon=1e-08, clipnorm=1.0), 
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), 
-              metrics=[tf.keras.metrics.SparseCategoricalAccuracy('accuracy')])
+model.compile(
+    optimizer=tf.keras.optimizers.Adam(learning_rate=3e-5, epsilon=1e-08, clipnorm=1.0),
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    metrics=[tf.keras.metrics.SparseCategoricalAccuracy("accuracy")],
+)
 
 model.fit(train_data, epochs=2, validation_data=validation_data)
 
-pred_sentences = ['This was an awesome movie. I watch it twice my time watching this beautiful movie if I have known it was this good',
-                  'One of the worst movies of all time. I cannot believe I wasted two hours of my life for this movie']
+pred_sentences = [
+    "This was an awesome movie. I watch it twice my time watching this beautiful movie if I have known it was this good",
+    "One of the worst movies of all time. I cannot believe I wasted two hours of my life for this movie",
+]
 
-tf_batch = tokenizer(pred_sentences, max_length=128, padding=True, truncation=True, return_tensors='tf')
+tf_batch = tokenizer(
+    pred_sentences, max_length=128, padding=True, truncation=True, return_tensors="tf"
+)
 tf_outputs = model(tf_batch)
 tf_predictions = tf.nn.softmax(tf_outputs[0], axis=-1)
-labels = ['Negative','Positive']
+labels = ["Negative", "Positive"]
 label = tf.argmax(tf_predictions, axis=1)
 label = label.numpy()
 for i in range(len(pred_sentences)):
-  print(pred_sentences[i], ": \n", labels[label[i]])
+    print(pred_sentences[i], ": \n", labels[label[i]])
