@@ -8,10 +8,7 @@ from reynir import Greynir
 from nltk.tokenize import word_tokenize
 import re
 from joblib import Parallel, delayed
-import logging
 
-
-logging.basicConfig(level=logging.INFO)
 stop_flag = 0
 
 
@@ -115,7 +112,7 @@ class TextNormalizer:
         txt = self.remove_overly_long_words(txt)
         return txt
 
-    def process(self, k, txt, stop_flag):
+    def process(self, k, txt, stop_flag=0):
         if stop_flag:
             return
         try:
@@ -152,7 +149,7 @@ if __name__ == "__main__":
     )
 
     data["review"] = results
-    data.to_csv("IMDB-Dataset-GoogleTranslate-Processed3.csv")
+    data.to_csv("IMDB-Dataset-GoogleTranslate-Processed.csv")
     end = time.time()
     print(f"Processed in {end-start} seconds.")
 
