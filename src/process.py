@@ -1,3 +1,4 @@
+import html
 import multiprocessing
 import string
 import sys
@@ -6,6 +7,7 @@ from tkinter import Tk, filedialog
 import pandas as pd
 from reynir import Greynir
 from nltk.tokenize import word_tokenize
+import tokenizer
 import re
 from joblib import Parallel, delayed
 import subprocess
@@ -18,6 +20,7 @@ stop_flag = 0
 class TextNormalizer:
     def __init__(self, icetagger):
         self.stop_words = None
+
         if __name__ == "__main__":
             file_path = "src/all_stop_words.txt"
         else:
@@ -53,21 +56,18 @@ class TextNormalizer:
                 else:
                     token = token + "_NEG"
             negated_txt.append(token)
-        # txt = re.sub(r" ([?.!,“;])", r"\1", " ".join(negated_txt))
-        # txt = re.sub(r"([„])([\s])", r"\1", txt)
-        # return re.sub("([?.!,;“„])", r"", txt)
+
         return " ".join(
-            [token for token in negated_txt if token not in string.punctuation]
+            [token for token in negated_txt if token[0] not in string.punctuation]
         )
 
     def tokenize(self, txt, lower_case=True):
         if lower_case:
             txt = txt.lower()
-        return word_tokenize(txt)
+        return [token.txt for token in tokenizer.tokenize(txt)]
 
     def send_word_to_script(self, word):
         try:
-            # Run the shell script, pass the word via stdin, and capture the output
             result = subprocess.run(
                 [
                     "cmd",
@@ -144,6 +144,7 @@ class TextNormalizer:
         return txt
 
     def remove_noise(self, txt):
+        txt = html.unescape(txt)
         txt = self.clean_html(txt)
         txt = self.remove_brackets(txt)
         txt = self.lower_case(txt)
@@ -179,16 +180,16 @@ if __name__ == "__main__":
         print("Invalid icetagger.bat path")
         sys.exit()
 
-    data = pd.read_csv("IMDB-Dataset-GoogleTranslate.csv")
+    data = pd.read_csv("IMDB-Dataset-MideindTranslate.csv")
     review, sentiment = data["review"], data["sentiment"]
     tn = TextNormalizer(icetagger)
     start = time.time()
-    results = Parallel(n_jobs=2, verbose=10)(
+    results = Parallel(n_jobs=16, verbose=10)(
         delayed(tn.process)(k, row, stop_flag) for k, row in enumerate(review)
     )
 
     data["review"] = results
-    data.to_csv("IMDB-Dataset-GoogleTranslate-proccessed-nefnir.csv")
+    data.to_csv("IMDB-Dataset-MideindTranslate-proccessed-nefnir2.csv")
     # data.to_csv("test2.csv")
     end = time.time()
     print(f"Processed in {end-start} seconds.")
