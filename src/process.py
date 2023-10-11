@@ -1,20 +1,26 @@
+import html
 import multiprocessing
 import string
+import sys
 import time
-import dask.dataframe as dd
-from dask.distributed import Client
+from tkinter import Tk, filedialog
 import pandas as pd
 from reynir import Greynir
 from nltk.tokenize import word_tokenize
+import tokenizer
 import re
 from joblib import Parallel, delayed
+import subprocess
+from nefnir import Nefnir
+from pathlib import Path
 
 stop_flag = 0
 
 
 class TextNormalizer:
-    def __init__(self):
+    def __init__(self, icetagger):
         self.stop_words = None
+
         if __name__ == "__main__":
             file_path = "src/all_stop_words.txt"
         else:
@@ -24,6 +30,8 @@ class TextNormalizer:
             self.stop_words = [
                 stop_word.replace("\n", "") for stop_word in self.stop_words
             ]
+
+        self.icetagger = icetagger
 
     def mark_negation(self, tokens):
         negation_words = [
@@ -48,34 +56,66 @@ class TextNormalizer:
                 else:
                     token = token + "_NEG"
             negated_txt.append(token)
-        # txt = re.sub(r" ([?.!,“;])", r"\1", " ".join(negated_txt))
-        # txt = re.sub(r"([„])([\s])", r"\1", txt)
-        # return re.sub("([?.!,;“„])", r"", txt)
+
         return " ".join(
-            [token for token in negated_txt if token not in string.punctuation]
+            [token for token in negated_txt if token[0] not in string.punctuation]
         )
 
     def tokenize(self, txt, lower_case=True):
         if lower_case:
             txt = txt.lower()
-        return word_tokenize(txt)
+        return [token.txt for token in tokenizer.tokenize(txt)]
+
+    def send_word_to_script(self, word):
+        try:
+            result = subprocess.run(
+                [
+                    "cmd",
+                    "/c",
+                    self.icetagger,
+                ],
+                input=word,
+                text=True,
+                check=True,
+                stdout=subprocess.PIPE,
+                cwd=self.icetagger[
+                    :-13
+                ],  # remove icetagger.bat from path to get the directory
+            )
+            java_output = result.stdout.strip().split("\n")[-1]
+
+            tokens = java_output.split(" ")
+            tokens = [(tokens[i], tokens[i + 1]) for i in range(0, len(tokens), 2)]
+
+            return tokens
+
+        except subprocess.CalledProcessError as e:
+            print(f"An error occurred: {str(e)}")
 
     def lemmatize(self, tokens, index):
-        g = Greynir()
+        n = Nefnir()
         output = []
-        for filtered_token in tokens:
-            parsed_token = g.parse_single(filtered_token)
-            if (
-                not parsed_token
-                or parsed_token.tree is None
-                or parsed_token.lemmas is None
-            ):
-                output.append(filtered_token)
-            else:
-                for lemmas in parsed_token.lemmas:
-                    output.append(lemmas)
-
+        tokens = self.send_word_to_script(" ".join(tokens))
+        for token, tag in tokens:
+            output.append(n.lemmatize(token, tag))
         return output
+
+    # def lemmatize(self, tokens, index):
+    #     g = Greynir()
+    #     output = []
+    #     for filtered_token in tokens:
+    #         parsed_token = g.parse_single(filtered_token)
+    #         if (
+    #             not parsed_token
+    #             or parsed_token.tree is None
+    #             or parsed_token.lemmas is None
+    #         ):
+    #             output.append(filtered_token)
+    #         else:
+    #             for lemmas in parsed_token.lemmas:
+    #                 output.append(lemmas)
+
+    #     return output
 
     def remove_stop_words(self, txt):
         return " ".join([t for t in txt.split(" ") if t not in self.stop_words])
@@ -104,6 +144,7 @@ class TextNormalizer:
         return txt
 
     def remove_noise(self, txt):
+        txt = html.unescape(txt)
         txt = self.clean_html(txt)
         txt = self.remove_brackets(txt)
         txt = self.lower_case(txt)
@@ -128,35 +169,27 @@ class TextNormalizer:
 
 
 if __name__ == "__main__":
-    # client = Client()
-    # data = dd.read_csv("IMDB-Dataset copy.csv")
-    # tn = TextNormalizer()
-    # start = time.time()
-    # data["review"] = data["review"].map_partitions(
-    #     lambda partition: partition.apply(tn.process), meta=("review", "object")
-    # )
-    # data.compute().to_csv("IMDB-Dataset-MideindTranslate-Processed.csv", index=False)
-    # client.close()
-    # end = time.time()
-    # print(f"Processed in {end-start} seconds.")
+    root = Tk()
+    root.withdraw()
 
-    data = pd.read_csv("IMDB-Dataset-GoogleTranslate.csv")
+    print("Select the icetagger.bat File")
+    icetagger = filedialog.askopenfilename(
+        title="Select the icetagger.bat File", filetypes=[("bat files", "*.bat")]
+    )
+    if not icetagger or not Path(icetagger).exists() or not Path(icetagger).is_file():
+        print("Invalid icetagger.bat path")
+        sys.exit()
+
+    data = pd.read_csv("IMDB-Dataset-MideindTranslate.csv")
     review, sentiment = data["review"], data["sentiment"]
-    tn = TextNormalizer()
+    tn = TextNormalizer(icetagger)
     start = time.time()
-    results = Parallel(n_jobs=14, verbose=10)(
+    results = Parallel(n_jobs=16, verbose=10)(
         delayed(tn.process)(k, row, stop_flag) for k, row in enumerate(review)
     )
 
     data["review"] = results
-    data.to_csv("IMDB-Dataset-GoogleTranslate-Processed.csv")
+    data.to_csv("IMDB-Dataset-MideindTranslate-proccessed-nefnir2.csv")
+    # data.to_csv("test2.csv")
     end = time.time()
     print(f"Processed in {end-start} seconds.")
-
-    # tn = TextNormalizer()
-    # print(
-    #     tn.process(
-    #         0,
-    #         "Þetta er ekki góður texti aaaaaabbbbcdefghijklmnopqr.",
-    #     )
-    # )
