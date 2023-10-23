@@ -1,8 +1,11 @@
 import os
 import tempfile
+from sklearn.metrics import f1_score
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import (
     Trainer,
+    TrainerControl,
+    TrainerState,
     TrainingArguments,
     EarlyStoppingCallback,
     TrainerCallback,
@@ -30,10 +33,11 @@ def tokenize_data(data, tokenizer, max_len=512):
     )
 
 
-df = pd.read_csv("Google-without-lem.csv")
+# df = pd.read_csv("Google-without-lem.csv")
+df = pd.read_csv("IMDB-Dataset-Processed.csv")
 
 df = df.sample(n=10000, random_state=RANDOM_SEED)
-df.drop(["Unnamed: 0"], axis=1, inplace=True)
+# df.drop(["Unnamed: 0"], axis=1, inplace=True)
 
 
 def convert(sentiment):
@@ -99,10 +103,28 @@ class SentimentDataset(Dataset):
 #     logging_dir="./logs",
 # )
 class CustomTuneReportCallback(TrainerCallback):
+    def __init__(self) -> None:
+        self.train_loss = 0.0
+
     def on_evaluate(self, args, state, control, metrics=None, **kwargs):
         train.report(
-            {"eval_acc": metrics["eval_acc"], "eval_loss": metrics["eval_loss"]}
+            {
+                "train_loss": self.train_loss,
+                "eval_acc": metrics["eval_acc"],
+                "eval_loss": metrics["eval_loss"],
+                "eval_f1": metrics["eval_f1"],
+            }
         )
+
+    def on_log(
+        self,
+        args: TrainingArguments,
+        state: TrainerState,
+        control: TrainerControl,
+        logs=None,
+        **kwargs,
+    ):
+        self.train_loss = logs.get("loss", self.train_loss)
 
 
 class SaveModelOnFinishCallback(TrainerCallback):
@@ -120,11 +142,18 @@ class SaveModelOnFinishCallback(TrainerCallback):
 
 
 def compute_metrics(p):
-    return {"acc": (np.argmax(p.predictions, axis=1) == p.label_ids).mean()}
+    logits, labels = p
+    predictions = np.argmax(logits, axis=-1)
+    return {
+        "acc": (predictions == labels).mean(),
+        "f1": f1_score(labels, predictions, average="weighted"),
+    }
+    # return {"acc": (np.argmax(p.predictions, axis=1) == p.label_ids).mean()}
 
 
 def tune_model(config):
-    model_name = "mideind/IceBERT"
+    # model_name = "mideind/IceBERT"
+    model_name = "roberta-base"
     model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -168,9 +197,9 @@ def tune_model(config):
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
         callbacks=[
-            EarlyStoppingCallback(
-                early_stopping_patience=5, early_stopping_threshold=0.01
-            ),
+            # EarlyStoppingCallback(
+            #     early_stopping_patience=5, early_stopping_threshold=0.01
+            # ),
             CustomTuneReportCallback(),
             SaveModelOnFinishCallback(model=model, tokenizer=tokenizer),
         ],
@@ -180,16 +209,24 @@ def tune_model(config):
 
 
 config = {
-    "num_train_epochs": tune.choice([3, 5, 10]),
-    "per_device_train_batch_size": tune.choice([8, 10]),
-    "per_device_eval_batch_size": tune.choice([8, 16]),
+    "num_train_epochs": tune.choice([3, 5]),
+    "per_device_train_batch_size": tune.choice([8, 8]),
+    "per_device_eval_batch_size": tune.choice([8, 8]),
     "warmup_steps": tune.choice([0, 500]),
     "weight_decay": tune.loguniform(0.001, 0.06),
-    "learning_rate": tune.loguniform(1e-5, 5e-5),
+    "learning_rate": tune.loguniform(1e-7, 5e-7),
 }
 
-scheduler = ASHAScheduler(metric="eval_loss", mode="min")
-reporter = CLIReporter(metric_columns=["eval_acc", "eval_loss", "training_iteration"])
+scheduler = ASHAScheduler(metric="eval_loss", mode="min", max_t=10, grace_period=2)
+reporter = CLIReporter(
+    metric_columns=[
+        "eval_acc",
+        "eval_loss",
+        "eval_f1",
+        "training_iteration",
+        "train_loss",
+    ]
+)
 
 # Wrap your function with tune.with_parameters to pass the large objects
 trainable = tune.with_parameters(tune_model)
@@ -205,12 +242,12 @@ tuner = Tuner(
     run_config=train.RunConfig(
         progress_reporter=reporter,
         local_dir="D:/HR/LOKA/sentiment-analysis/ray_results",
-        name="tune_model2",
+        name="tune_eng5",
     ),
 )
 
 results = tuner.fit()
-best_result = results.get_best_result("eval_loss", "min", "all")
+best_result = results.get_best_result("eval_f1", "max", "all")
 best_config = best_result.config  # Get best trial's hyperparameters
 best_logdir = best_result.path  # Get best trial's result directory
 best_checkpoint = best_result.checkpoint  # Get best trial's best checkpoint
