@@ -152,14 +152,23 @@ if __name__ == '__main__':
     gc.collect()
     torch.cuda.empty_cache()
     device = "cuda"
-
-    dfl = DataFrameLoader('../IMDB-Dataset-GoogleTranslate-proccessed-nefnir.csv')
-    model = AutoModelForSequenceClassification.from_pretrained('../IceBERT_google_batch8_model')
-    model.to(device)
-    tokenizer = AutoTokenizer.from_pretrained('../IceBERT_google_batch8_model')
-    
-
-    #s1 = SentimentData(dfl.X_train, dfl.y_train, tokenizer, 512)    
-    report = RoBERTaClassificationReport(model, tokenizer, dfl.X_test, dfl.y_test, device)
-
-    pprint(report.generate_report())
+    data = [
+        {
+            'folder': './roberta-batch8-unprocessed_model/',
+            'filename': '../IMDB-Dataset.csv'
+        },
+        {
+            'folder': './roberta-batch8-unprocessed_model/',
+            'filename': '../IMDB-Dataset-Processed.csv'
+        }
+    ]
+    for d in data:
+        folder = d['folder']
+        filename = d['filename']
+        print("Loading model from folder {} using file {}".format(folder, filename))
+        dfl = DataFrameLoader(filename)
+        model = AutoModelForSequenceClassification.from_pretrained(folder)
+        model.to(device)
+        tokenizer = AutoTokenizer.from_pretrained(folder)
+        report = RoBERTaClassificationReport(model, tokenizer, dfl.X_test, dfl.y_test, device)
+        pprint(report.generate_report())
