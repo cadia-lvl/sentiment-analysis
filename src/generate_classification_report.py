@@ -137,6 +137,9 @@ class DataFrameLoader():
         X_train, X_temp, y_train, y_temp = train_test_split(self.df["review"], self.df["sentiment"], test_size=0.3, random_state=random_state)
         X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=random_state)
         
+        self.X_all = self.df.review
+        self.y_all = self.df.sentiment
+
         self.X_train = X_train
         self.y_train = y_train
 
@@ -153,13 +156,25 @@ if __name__ == '__main__':
     torch.cuda.empty_cache()
     device = "cuda"
     data = [
+        # {
+        #     'folder': './roberta-batch8-unprocessed_model/',
+        #     'filename': '../IMDB-Dataset.csv'
+        # },
+        # {
+        #     'folder': './icebert-google-batch8-remove-noise-model/',
+        #     'filename': '../IMDB-Dataset-GoogleTranslate.csv'
+        # },
+        # {
+        #     'folder': './IceBERT-mideind-batch8-remove-noise-model/',
+        #     'filename': '../IMDB-Dataset-MideindTranslate.csv'
+        # },
         {
-            'folder': './roberta-batch8-unprocessed_model/',
-            'filename': '../IMDB-Dataset.csv'
+            'folder': './icebert-google-batch8-remove-noise-model/',
+            'filename': '../Hannes-Movie-Reviews.csv'
         },
         {
-            'folder': './roberta-batch8-unprocessed_model/',
-            'filename': '../IMDB-Dataset-Processed.csv'
+            'folder': './IceBERT-mideind-batch8-remove-noise-model/',
+            'filename': '../Hannes-Movie-Reviews.csv'
         }
     ]
     for d in data:
@@ -170,5 +185,6 @@ if __name__ == '__main__':
         model = AutoModelForSequenceClassification.from_pretrained(folder)
         model.to(device)
         tokenizer = AutoTokenizer.from_pretrained(folder)
-        report = RoBERTaClassificationReport(model, tokenizer, dfl.X_test, dfl.y_test, device)
+        report = RoBERTaClassificationReport(model, tokenizer, dfl.X_all, dfl.y_all, device)
         pprint(report.generate_report())
+        print("*"*50)
