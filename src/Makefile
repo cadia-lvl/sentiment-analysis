@@ -5,3 +5,6 @@ pdf3:
 
 tex:
 	jupyter nbconvert FinalReport2.ipynb --to latex
+
+progress:
+	jupyter nbconvert ProgressReport2.ipynb --to pdf --template=hide_header && open ProgressReport2.pdf
