@@ -18,7 +18,9 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
 from transformers import Trainer
 import numpy as np
+from nltk.corpus import stopwords
 
+from process import TextNormalizer
 
 RANDOM_SEED = 42
 
@@ -34,8 +36,8 @@ def tokenize_data(data, tokenizer, max_len=512):
     )
 
 
-df = pd.read_csv("IMDB-Dataset-GoogleTranslate.csv")
-# df = pd.read_csv("IMDB-Dataset-MideindTranslate-proccessed-nefnir.csv")
+# df = pd.read_csv("IMDB-Dataset-GoogleTranslate.csv")
+df = pd.read_csv("IMDB-Dataset-MideindTranslate.csv")
 # df = pd.read_csv("IMDB-Dataset.csv")
 
 # df.drop(["Unnamed: 0"], axis=1, inplace=True)
@@ -53,8 +55,9 @@ def convert(sentiment):
     return 1 if sentiment == "positive" else 0
 
 
+tn = TextNormalizer(None)
 df["sentiment"] = df.sentiment.apply(convert)
-
+df["review"] = df.review.apply(tn.remove_noise)
 # show how many positive and negative reviews we have
 # print(df.sentiment.value_counts())
 
@@ -116,7 +119,11 @@ BATCH_SIZE = 8
 
 
 model_name = "mideind/IceBERT"
-model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
+
+model = AutoModelForSequenceClassification.from_pretrained(
+    model_name,
+    num_labels=2,
+)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model.to(device)
 
@@ -144,7 +151,7 @@ scheduler = get_linear_schedule_with_warmup(
 log_dir = "D:\\HR\\LOKA\\sentiment-analysis\\logs"
 
 training_args = TrainingArguments(
-    output_dir="D:\\HR\\LOKA\\sentiment-analysis\\results\\roberta-batch8-unprocessed",
+    output_dir="D:\\HR\\LOKA\\sentiment-analysis\\results\\Icebert-mideind-batch8-remove-noise",
     num_train_epochs=EPOCHS,
     per_device_train_batch_size=BATCH_SIZE,
     per_device_eval_batch_size=BATCH_SIZE,
@@ -163,16 +170,17 @@ trainer = Trainer(
     train_dataset=train_dataset,
     eval_dataset=val_dataset,
     callbacks=[
-        EarlyStoppingCallback(early_stopping_patience=3, early_stopping_threshold=0.01),
+        # EarlyStoppingCallback(early_stopping_patience=3, early_stopping_threshold=0.01),
     ],
     optimizers=(optimizer, scheduler),
     tokenizer=tokenizer,
 )
+
 
 trainer.train()
 
 results = trainer.evaluate(test_dataset)
 print("test results:", results)
 
-model.save_pretrained("./roberta-batch8-unprocessed_model")
-tokenizer.save_pretrained("./roberta-batch8-unprocessed_model")
+model.save_pretrained("./Icebert-mideind-batch8-remove-noise-model")
+tokenizer.save_pretrained("./Icebert-mideind-batch8-remove-noise-model")
