@@ -53,9 +53,9 @@ def plot_rating_distribution(ratings):
 
 
 def main():
-    original_csv_path = "../data/kvikmyndaryni_reviews.csv"
+    original_csv_path = "../data/kvikmyndaryni-reviews.csv"
     # original_csv_path = "../data/Hannes-Movie-Reviews.csv"
-    new_csv_path = "../data/kvikmyndaryni-reviews.csv"
+    new_csv_path = "../data/kvikmyndaryni-reviews-with-sentiment.csv"
     negative_threshold = 4
     positive_threshold = 7
 
