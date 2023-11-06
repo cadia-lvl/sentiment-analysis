@@ -4,7 +4,7 @@ import os
 
 def main():
     # Path to your CSV file
-    csv_file_path = "data/kvikmyndaryni_reviews.csv"
+    csv_file_path = "data/kvikmyndaryni-reviews.csv"
 
     # Check if file exists to determine if headers are needed
     file_exists = os.path.isfile(csv_file_path)
