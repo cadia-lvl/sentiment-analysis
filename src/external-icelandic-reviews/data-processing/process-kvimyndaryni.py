@@ -28,7 +28,7 @@ def assign_sentiment(reviews, negative_threshold, positive_threshold):
 
 def write_reviews_with_sentiment(csv_path, reviews_with_sentiment):
     with open(csv_path, mode="w", newline="", encoding="utf-8") as file:
-        fieldnames = ["id", "review", "rating", "sentiment"]
+        fieldnames = ["movie", "review", "rating", "sentiment"]
         csv_writer = csv.DictWriter(file, fieldnames=fieldnames)
         csv_writer.writeheader()
         csv_writer.writerows(reviews_with_sentiment)
@@ -42,21 +42,26 @@ def print_statistics(ratings):
     print(f"Mean rating: {mean_rating:.2f}")
     print(f"Standard Deviation: {std_dev:.2f}")
 
+    median_rating = np.median(ratings)
+    print(f"Median rating: {median_rating:.2f}")
+
 
 def plot_rating_distribution(ratings):
     plt.hist(ratings, bins=range(1, 11), edgecolor="black", alpha=0.7, density=True)
     plt.xlabel("Rating")
     plt.ylabel("Density")
-    plt.title("Rating Distribution")
+    plt.title("Kvikmyndaryni Rating Distribution")
     plt.grid(True)
     plt.show()
 
 
 def main():
-    original_csv_path = "../data/kvikmyndaryni-reviews.csv"
-    # original_csv_path = "../data/Hannes-Movie-Reviews.csv"
-    new_csv_path = "../data/kvikmyndaryni-reviews-with-sentiment.csv"
-    negative_threshold = 4
+    original_csv_path = "../data/original/kvikmyndaryni-reviews.csv"
+    destination_path = "../data/median-split/kvikmyndaryni-reviews-with-sentiment.csv"
+    # 4, 7 for imdb split  | 
+    # 5, 6 for five split  |
+    # 6, 7 for median split|
+    negative_threshold = 6
     positive_threshold = 7
 
     reviews = read_reviews(original_csv_path)
@@ -67,10 +72,10 @@ def main():
     )
     print(f"Sentiment counts: {sentiments_count}")
 
-    # write_reviews_with_sentiment(new_csv_path, reviews_with_sentiment)
+    write_reviews_with_sentiment(destination_path, reviews_with_sentiment)
 
     print_statistics(ratings)
-    plot_rating_distribution(ratings)
+    #plot_rating_distribution(ratings)
 
 
 if __name__ == "__main__":
