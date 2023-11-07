@@ -47,17 +47,19 @@ def plot_rating_distribution(ratings):
     plt.hist(ratings, bins=range(1, 11), edgecolor="black", alpha=0.7, density=True)
     plt.xlabel("Rating")
     plt.ylabel("Density")
-    plt.title("Rating Distribution")
+    plt.title("Hannes Rating Distribution")
     plt.grid(True)
     plt.show()
 
 
 def main():
-    # original_csv_path = "../data/kvikmyndaryni_reviews.csv"
     original_csv_path = "../data/Hannes-Movie-Reviews.csv"
     new_csv_path = "../data/hannes-reviews-reviews-with-sentiment.csv"
-    negative_threshold = 4
-    positive_threshold = 7
+    # 4, 7 for imdb split  | 
+    # 5, 6 for five split  |
+    # 6, 7 for median split|
+    negative_threshold = 5
+    positive_threshold = 6
 
     reviews = read_reviews(original_csv_path)
     ratings = [float(review["rating"]) for review in reviews]
@@ -67,10 +69,10 @@ def main():
     )
     print(f"Sentiment counts: {sentiments_count}")
 
-    # write_reviews_with_sentiment(new_csv_path, reviews_with_sentiment)
+    write_reviews_with_sentiment(new_csv_path, reviews_with_sentiment)
 
     print_statistics(ratings)
-    plot_rating_distribution(ratings)
+    #plot_rating_distribution(ratings)
 
 
 if __name__ == "__main__":
