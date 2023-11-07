@@ -1,10 +1,8 @@
-pdf2:
-	jupyter nbconvert FinalReport2.ipynb --to pdf --template=hide_header && open FinalReport2.pdf
-pdf3:
-	pandoc -f markdown-implicit_figures -t pdf FinalReport3.md -o FinalReport3.pdf && open FinalReport3.pdf
+pdf:
+	jupyter nbconvert FinalReport.ipynb --to pdf --template=hide_header && open FinalReport.pdf
 
 tex:
-	jupyter nbconvert FinalReport2.ipynb --to latex
+	jupyter nbconvert FinalReport.ipynb --to latex
 
 progress:
-	jupyter nbconvert ProgressReport2.ipynb --to pdf --template=hide_header && open ProgressReport2.pdf
+	jupyter nbconvert ProgressReport.ipynb --to pdf --template=hide_header && open ProgressReport.pdf
