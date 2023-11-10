@@ -2,13 +2,14 @@
 
 | Risk                                  | Likelihood (1-5)  | Impact (1-5)  | Responsibility    | Mitigation Strategy |
 |---------------------------------------|-------------------|---------------|-------------------|---------------------|
-| Resource Constraints (Time and Computing Power) | 4       | 5             | Eysteinn          | Prioritize key features and models that are critical to the project. Consider using cloud computing resources. |
-| Training stops/Computer crashes       | 4                 | 4             | Ólafur            | Regular backups and distributed training could mitigate this risk. |
-| Sprint/Project delay                  | 3                 | 5             | Ólafur            | Address the problem in the standup's and frequent reassessments. |
-| Incompatibility of Translation APIs   | 3                 | 3             | Birkir            | Have fallback methods for each API, and make the system modular to easily swap out one service for another. |
-| Classifier Model Inefficiency         | 3                 | 3             | Eysteinn          | Use baseline models for initial testing before using more complex models like BERT, roBERTa, and IceBERT. |
-| Overfitting in Model Training         | 2                 | 4             | Birkir            | Utilize techniques such as cross-validation and dropout layers. |
-| Illness in team                       | 2                 | 4             | Whole Team        | Cross-training and comprehensive documentation can help other team members pick up the slack. Tries not getting other team members sick. |
-| API Rate Limiting or Costs            | 2                 | 3             | Birkir            | Caching translated data and batch processing could help in minimizing the number of API calls. |
-| A team member quits                   | 1                 | 5             | Whole Team        | Having a documented and modular project architecture allows for easier transition of responsibilities. |
-| External Dependency Failures (APIs down) | 1              | 2             | Whole Team        | Have a contingency plan, such as a local translation model otherwise wait and focus on a different task |
+| Integration of Feedback from Advisors | 5                 | 4             | Ólafur            | Schedule interim reviews with advisors and allocate time for revisions based on feedback. |
+| Report Completion Delay               | 3                 | 5             | Whole Team        | Set internal deadlines and checkpoints for report sections to stay on schedule. |
+| Underestimating the Time Required for Revisions | 3       | 4             | Whole Team        | Allow buffer time in the project schedule specifically for revisions. |
+| Presentation Preparation Inadequacy   | 2                 | 5             | Whole Team        | Conduct practice sessions, prepare well in advance, and ensure all team members are familiar with all parts of the presentation. |
+| Inaccuracy in Reported Results        | 2                 | 5             | Eysteinn          | Peer-review within the team, double-check all results and analyses. |
+| Miscommunication Within the Team      | 3                 | 3             | Whole Team        | Regular meetings, clear communication channels, and shared documentation practices. |
+| Data Misinterpretation                | 2                 | 4             | Ólafur            | Have findings reviewed by all team members for clarity and consistency. |
+| Illness in Team During Writing Phase  | 2                 | 3             | Whole Team        | Distribute the workload and prepare contingency plans. |
+| Missing Documentation for Methods     | 1                 | 5             | Birkir            | Ensure all methodologies are well-documented as we write the report. |
+| Technical Issues with Document Sharing/Collaboration Tools | 2 | 2        | Birkir            | Use reliable collaboration tools and maintain regular backups of the report. |
+| Formatting and Submission Issues      | 1                 | 3             | Eysteinn          | Follow the submission guidelines, stay vigilant, keep eachother updated and regularly save drafts in the correct format. |
