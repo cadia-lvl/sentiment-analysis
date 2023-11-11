@@ -158,10 +158,10 @@ class TextNormalizer:
             return
         try:
             print(f"Processing {k} by thread {multiprocessing.current_process().name}")
-            txt = self.remove_noise(txt)
-            return self.mark_negation(
-                self.lemmatize(self.tokenize(self.remove_stop_words(txt)), k)
-            )
+            return self.remove_noise(txt)
+            # return self.mark_negation(
+            #     self.lemmatize(self.tokenize(self.remove_stop_words(txt)), k)
+            # )
         except Exception as e:
             print(f"Failed to lemmatize {k} with error {e}")
             stop_flag = 1
@@ -172,24 +172,25 @@ if __name__ == "__main__":
     root = Tk()
     root.withdraw()
 
-    print("Select the icetagger.bat File")
-    icetagger = filedialog.askopenfilename(
-        title="Select the icetagger.bat File", filetypes=[("bat files", "*.bat")]
-    )
-    if not icetagger or not Path(icetagger).exists() or not Path(icetagger).is_file():
-        print("Invalid icetagger.bat path")
-        sys.exit()
+    # print("Select the icetagger.bat File")
+    # icetagger = filedialog.askopenfilename(
+    #     title="Select the icetagger.bat File", filetypes=[("bat files", "*.bat")]
+    # )
+    # if not icetagger or not Path(icetagger).exists() or not Path(icetagger).is_file():
+    #     print("Invalid icetagger.bat path")
+    #     sys.exit()
 
-    data = pd.read_csv("IMDB-Dataset-MideindTranslate.csv")
-    review, sentiment = data["review"], data["sentiment"]
-    tn = TextNormalizer(icetagger)
+    data = pd.read_csv("src/icelandic-review-scrapers/data/Hannes-Movie-Reviews.csv")
+    review = data["review"]
+    tn = TextNormalizer(None)
     start = time.time()
     results = Parallel(n_jobs=16, verbose=10)(
         delayed(tn.process)(k, row, stop_flag) for k, row in enumerate(review)
     )
 
     data["review"] = results
-    data.to_csv("IMDB-Dataset-MideindTranslate-proccessed-nefnir2.csv")
-    # data.to_csv("test2.csv")
+
+    data.to_csv("src/icelandic-review-scrapers/data/Hannes-Movie-Reviews-processed.csv")
+    
     end = time.time()
     print(f"Processed in {end-start} seconds.")
