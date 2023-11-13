@@ -124,7 +124,7 @@ class DataFrameLoader():
         self.df = pd.read_csv(pdf_src)
         if "Unnamed: 0" in self.df.columns:
             self.df.drop(['Unnamed: 0'], axis=1, inplace=True)
-        self.df['sentiment'] = self.df.sentiment.apply(lambda sentiment: 1 if sentiment == 'positive' else 0)
+        self.df['sentiment'] = self.df.sentiment.apply(lambda sentiment: 1 if sentiment.lower() == 'positive' else 0)
         
         if sample_size is not None:
             self.df = self.df.sample(n=sample_size, random_state=random_state)
@@ -149,39 +149,30 @@ def eval_files():
     gc.collect()
     torch.cuda.empty_cache()
     device = "cuda"
+    filename = './external-icelandic-reviews/data'
     data = [
-        # {
-        #     'folder': './roberta-batch8-unprocessed_model/',
-        #     'filename': '../IMDB-Dataset.csv'
-        # },
-        # {
-        #     'folder': './icebert-google-batch8-remove-noise-model/',
-        #     'filename': '../IMDB-Dataset-GoogleTranslate.csv'
-        # },
-        # {
-        #     'folder': './IceBERT-mideind-batch8-remove-noise-model/',
-        #     'filename': '../IMDB-Dataset-MideindTranslate.csv'
-        # },
-        {
-            'folder': './electra-base-google-batch8-remove-noise-model/',
-            'filename': '../IMDB-Dataset-GoogleTranslate.csv'
-        },
         {
             'folder': './electra-base-mideind-batch8-remove-noise-model/',
-            'filename': '../IMDB-Dataset-MideindTranslate.csv'
+            'filename': f'{filename}/icelandic-data.csv'
         },
         {
             'folder': './electra-base-google-batch8-remove-noise-model/',
-            'filename': '../Hannes-Movie-Reviews.csv'
+            'filename': f'{filename}/icelandic-data.csv'
         },
         {
-            'folder': './electra-base-mideind-batch8-remove-noise-model/',
-            'filename': '../Hannes-Movie-Reviews.csv'
-        }
+            'folder': './icebert-mideind-batch8-remove-noise-model/',
+            'filename': f'{filename}/icelandic-data.csv'
+        },
+        {
+            'folder': './icebert-google-batch8-remove-noise-model/',
+            'filename': f'{filename}/icelandic-data.csv'
+        },
     ]
+
     for d in data:
         folder = d['folder']
         filename = d['filename']
+        print("*"*50)
         print("Loading model from folder {} using file {}".format(folder, filename))
         dfl = DataFrameLoader(filename)
         model = AutoModelForSequenceClassification.from_pretrained(folder)
@@ -194,41 +185,3 @@ def eval_files():
 if __name__ == '__main__':
     eval_files()
 
-
-# t = """Í pistli dagsins mun ég fjalla um tvær afar ólíkar myndir sem sýndar hafa verið í bíóhúsum Reykjavíkurborgar undanfarið, annars vegar finnsku hrollvekjuna Hatching eða Klakið eftir Hönnu Bergholm og bandaríska blaðamennskudramað She Said, sem hin þýska Maria Schrader leikstýrði.
-# Ég var ótrúlega þakklát fyrir að hafa villst inn á það sem gæti hafa verið ein af síðustu sýningunum á Klakinu í Bíó Paradís í síðustu viku, mynd sem var frumsýnd á Sundance-hátíðinni í byrjun árs en ég hafði lítið sem ekkert heyrt talað um. Myndin fangaði hug minn undir eins. Í upphafsatriðinu sjáum við móður sem heldur úti einhvers konar lífstílsbloggi eða vídjódagbók sem gefur fylgjendum hennar innsýn í líf hinnar fullkomnu fjölskyldu; hún tekur myndband af dóttur sinni æfa sig fyrir fimleikakeppni í óaðfinnanlegri stofu heimilisins, áður en faðir og yngri bróðir bætast í hópinn og brosa sínu blíðasta fyrir myndavélina. Um leið og hún hefur slökkt á upptökunni flýgur svartur fugl inn í stofuna, sem svo óheppilega vill til að er full af brothættum munum, og kemur sögusviðinu í uppnám. Fjölskyldan leggst öll á eitt í því að ná þessari skaðræðisskepnu, sem tekst að brjóta að því er virðist skuggalega marga vasa áður en dóttirin fangar hana loksins í handklæði. Andrúmsloftið, sem hefur orðið æ óþægilegra eftir því sem fuglinn flögraði lengur um, verður bókstaflega óhugnanlegt þegar móðir hennar, brosmild og fögur, tekur fuglinn af henni og snýr hann úr hálslið á augabragði.
-# Þetta upphaf setur tóninn fyrir myndina, sem er uppfull af sálfræðilegum óhugnaði sem við upplifum í gegnum aðalpersónu myndarinnar, hina 12 ára gömlu Tinju, sem Siiri Solalinna túlkar svo til óaðfinnanlega í sínu fyrsta hlutverki í kvikmynd. Að kvöldi þessa sama dags heyrir hún fuglsgarg fyrir utan gluggann og þegar hún fer út að athuga málið finnur hún egg sem hún tekur með sér inn og hlúir að. Mér dettur ekki í hug að spilla myndinni fyrir ykkur með því að lýsa nákvæmlega því sem klekst að lokum út úr þessu eggi, þið verðið eiginlega að sjá það sjálf. Það má þó segja að afkvæmið verði að hálfgerðri framlengingu á Tinju, sem gerir myndinni kleift að fjalla um sálarlíf stúlkunar með næmni sem sjaldgæft er að maður rekist á í hrollvekju. Í samhengi má reyndar minnast á að finnska orðið yfir það að klekja vísar einnig til hugarangurs, þess að hafa áhyggjur, þannig að Tinja klekur ekki bara út eggi í þessari ágætu mynd.
-# Klakið minnti mig reyndar svolítið á aðra, mun hefðbundnari hryllingsmynd frá 1976, Carrie eftir Brian de Palma. Þótt ég haldi mikið upp á Carrie, þá hefur það fyrir löngu orðið að klisju að gera kvenlíkamann óhugnanlegan í hrollvekjum, eins og þau ykkar vita sem hafa séð eina vinsælustu hryllingsmynd haustsins, Barbarian eftir Zach Cregger, á streymisveitu Disney. Klakið fellur ekki í þessa gildru. Mig grunar að þar sé leikstjóranum Hönnu Bergholm að þakka, sem hefur lýst því í viðtölum hversu þreytt hún sé á skorti á áhugverðum kvenpersónum í kvikmyndum. Óhugnaðurinn í Klakinu býr í óheilbrigðum samböndum og einmanaleika, sem er einhverra hluta vegna mjög óvenjulegt viðfangsefni innan hryllingsmyndagreinarinnar, þrátt fyrir það að líklegra sé að áhorfendur tengi við það frekar ýmislegt annað sem þeirri ágætu grein er hugleikið.
-# Á þessum femínísku nótum vil ég beina sjónum að mynd Mariu Schrader, She Said, þar sem vinkonurnar Carey Mulligan og Zoe Kazan fara með hlutverk samstarfs- og vinkvennana Jodi Kantor og Megan Twohey. She Said byggir á samnefndri bók eftir Kantor og Twohey frá 2019, en báðar eru þær blaðakonur hjá The New York Times. Í bókinni rekja þær aðdragandann að því að greinar þeirra um kynferðisafbrot kvikmyndaframleiðandans Harveys Weinstein birtust í blaðinu í októberbyrjun 2017. Þær Kantor og Twohey voru fyrstar til að fjalla um málið á ítarlegan hátt, með frásögnum kvenna sem komu fram undir nafni, þótt Ronan Farrow hafi fylgt þeim fast á eftir með umfjöllun í New Yorker, en hlustendur muna eflaust flestir eftir þeirri gífurlegu samfélagsumræðu sem fylgdi í kjölfarið og áhrifum hennar á vöxt og útbreiðslu #metoo-hreyfingarinnar víðsvegar um heim.
-# She Said er að mestu mjög hefðbundin blaðamennskumynd, sem nýtir sér hefðbundin stef slíkra kvikmynda. Við fylgjumst með metnaðarfullum blaðamönnum sem vinna hörðum höndum að því að afhjúpa sannleikann, taka símtöl hvenær sem er sólarhringsins, elta viðmælendur uppi víðsvegar um heiminn og taka stöðuna á fundum með ritstjórum blaðsins með reglubundnum hætti. Twohey og Kantor upplifa mótlæti í formi hins valdamikla og árásargjarna Weinsteins, sem reynist ítrekað hafa gert trúnaðarsamninga við fórnarlömb sín, en mikil hluti af þeirri mikilvægu vinnu sem liggur greinum þeirra að baki fólst í því að sannfæra konurnar sem hann braut á um það að rjúfa þögnina um ofbeldið. Það kemur því kannski ekki á óvart að myndir eins og All the President’s Men (1976) og Spotlight (2015) hafi töluvert borið á góma í samhengi við She Said, sem fjalla um metnaðarfulla rannsóknarblaðamennsku andspænis þöggunartilburðum bandarískra yfirvalda annars vegar og kaþólsku kirkjunnar hins vegar, og margir hafa velt vöngum yfir því hvort mynd Mariu Schrader eigi í vændum viðlíka velgengni á Óskarsverðlaununum og þessir forverar hennar frá 1976 og 2015.
-# Það sem greinir She Said frá öðrum þekktum blaðamannamyndum er ef til vill helst það að hún fjallar um konur; blaðakonurnar tvær og konurnar sem treystu þeim fyrir sögum sínum. Weinstein sjálfur er svo til alveg fjarverandi í myndinni, við sjáum baksvip hans þegar hann mætir á fund í höfuðstöðvar New York Times ásamt lögfræðingum sínum, en annars heyrum við einungis rödd hans í síma. Myndin dvelur líka meira við áhrif rannsóknarinnar á einkalíf Kantor og Twohey en hefð er fyrir í sambærilegum verkum, en þær eiga báðar maka og ung börn sem þeim tekst misvel að búa til tíma fyrir í öllum hasarnum. Myndin gefur þannig raunsærri mynd af lífi rannsóknarblaðamanns, sem getur ekki alltaf gefið sig rannsókninni á vald með alveg sama hætti og oft sést í slíkum myndum. She Said hefur reyndar óvenju mikinn raunsæisblæ, sem birtist til dæmis líka þeirri ákvörðun að taka upp í raunverulegum höfuðstöðvum The New York Times á Manhattan, sem taka sig eimkar vel út á hvíta tjaldinu.
-# Þótt helstu kostir She Said liggi að hluta í raunsæislegri nálgun á viðfangsefnið—því það er óneitanlega hressandi sjá söguhetjur sem eru að breyta heiminum á sama tíma og þær þurfa að takast á við hversdagslegri hluti eins og fæðingarþunglyndi og annað álag sem fylgir barneignum—þá er má rekja galla myndarinnar, í mínum huga, til þessarar sömu tilhneigingar. Því myndin er, eins og mörg önnur sambærileg verk, rétt rúmlega tveggja tíma löng. Viðfangsefnið er þó þess eðlis að við erum vön því að ákveðnum stílbrögðum sé beitt til að halda áhorfendum við efnið og byggja upp spennu; aðferðum sem kalla má „kvikmyndalegar“ og stangast gjarnan á við raunsæislega framsetningu. Og ég verð að viðurkenna það, að þótt ég hafi verið ánægð með myndina yfir það heila og ég mæli með henni, þá saknaði ég þess sem greinir veruleikann frá Hollywoodmyndum, eins og til dæmis tónlist sem hraðar á hjartslættinum að öðru hverju, dramatískari samtölum en gengur og gerist í hversdagslífinu og myndfléttuatriðum sem gefa tilfinningu fyrir því að fólk sé að vinna vinnuna sína hraðar og með meiri tilþrifum en ég hef nokkurn tímann getað gert sjálf."""
-# device = "cuda"
-# folder = './IceBERT-mideind-batch8-remove-noise-model/'
-# model = AutoModelForSequenceClassification.from_pretrained(folder)
-# model.to(device)
-# tokenizer = AutoTokenizer.from_pretrained(folder)
-# data={
-#     "sentiment": [0],
-#     "review": [t]
-# }
-# df = pd.DataFrame(data)
-
-# s = SentimentDataset([t], [0], tokenizer, 512)
-
-# model.eval()
-
-# batch = s[0]
-
-# with torch.no_grad():
-#     input_ids = batch['input_ids'].to(device)
-#     attention_mask = batch['attention_mask'].to(device)
-#     labels = batch['targets'].to(device)
-
-#     print(labels)
-
-    #outputs = model(input_ids, attention_mask=attention_mask, return_dict=True)
-    #print(outputs)
-    #prediction = torch.max(outputs.logits, dim=1)
-
-#print(p)
