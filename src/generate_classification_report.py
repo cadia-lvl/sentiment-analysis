@@ -4,7 +4,7 @@
 import torch
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, accuracy_score
 from sklearn.model_selection import train_test_split
 from pprint import pprint
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -115,7 +115,8 @@ class RoBERTaClassificationReport:
                 y_true.extend(labels.tolist())
                 y_pred.extend(prediction.indices.tolist())
         report = classification_report(y_true, y_pred, output_dict=True)
-        return report
+        acc = accuracy_score(y_true, y_pred)
+        return acc
 
 
 class DataFrameLoader():
@@ -144,6 +145,22 @@ class DataFrameLoader():
 
         self.X_test = X_test
         self.y_test = y_test
+
+def call_model(X_all, y_all, folder, device):
+    model = AutoModelForSequenceClassification.from_pretrained(folder)
+    model.to(device)
+    tokenizer = AutoTokenizer.from_pretrained(folder)
+    report = RoBERTaClassificationReport(model, tokenizer, X_all, y_all, device)
+    return report.generate_report()
+
+def generate_report(filename, folder, device):
+    print("*"*50)
+    print("Loading model from folder {} using file {}".format(folder, filename))
+    dfl = DataFrameLoader(filename)
+    
+    pprint(call_model(dfl.X_all, dfl.y_all, folder, device))
+    print("*"*50)
+
 def eval_files():
     import gc
     gc.collect()
@@ -172,15 +189,7 @@ def eval_files():
     for d in data:
         folder = d['folder']
         filename = d['filename']
-        print("*"*50)
-        print("Loading model from folder {} using file {}".format(folder, filename))
-        dfl = DataFrameLoader(filename)
-        model = AutoModelForSequenceClassification.from_pretrained(folder)
-        model.to(device)
-        tokenizer = AutoTokenizer.from_pretrained(folder)
-        report = RoBERTaClassificationReport(model, tokenizer, dfl.X_all, dfl.y_all, device)
-        pprint(report.generate_report())
-        print("*"*50)
+        generate_report(filename, folder, device)
 
 if __name__ == '__main__':
     eval_files()
