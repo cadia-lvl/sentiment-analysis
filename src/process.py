@@ -1,12 +1,11 @@
 import html
 import multiprocessing
+import os
 import string
 import sys
 import time
 from tkinter import Tk, filedialog
 import pandas as pd
-from reynir import Greynir
-from nltk.tokenize import word_tokenize
 import tokenizer
 import re
 from joblib import Parallel, delayed
@@ -18,14 +17,12 @@ stop_flag = 0
 
 
 class TextNormalizer:
-    def __init__(self, icetagger):
+    def __init__(self, icetagger=None):
         self.stop_words = None
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        stop_words_file_path = os.path.join(current_dir, "all_stop_words.txt")
 
-        if __name__ == "__main__":
-            file_path = "src/all_stop_words.txt"
-        else:
-            file_path = "all_stop_words.txt"
-        with open(file_path) as f:
+        with open(stop_words_file_path) as f:
             self.stop_words = f.readlines()
             self.stop_words = [
                 stop_word.replace("\n", "") for stop_word in self.stop_words
@@ -93,29 +90,15 @@ class TextNormalizer:
             print(f"An error occurred: {str(e)}")
 
     def lemmatize(self, tokens, index):
+        if self.icetagger is None:
+            return tokens
+
         n = Nefnir()
         output = []
         tokens = self.send_word_to_script(" ".join(tokens))
         for token, tag in tokens:
             output.append(n.lemmatize(token, tag))
         return output
-
-    # def lemmatize(self, tokens, index):
-    #     g = Greynir()
-    #     output = []
-    #     for filtered_token in tokens:
-    #         parsed_token = g.parse_single(filtered_token)
-    #         if (
-    #             not parsed_token
-    #             or parsed_token.tree is None
-    #             or parsed_token.lemmas is None
-    #         ):
-    #             output.append(filtered_token)
-    #         else:
-    #             for lemmas in parsed_token.lemmas:
-    #                 output.append(lemmas)
-
-    #     return output
 
     def remove_stop_words(self, txt):
         return " ".join([t for t in txt.split(" ") if t not in self.stop_words])
@@ -163,7 +146,7 @@ class TextNormalizer:
                 self.lemmatize(self.tokenize(self.remove_stop_words(txt)), k)
             )
         except Exception as e:
-            print(f"Failed to lemmatize {k} with error {e}")
+            print(f"Failed to process {k} with error {e}")
             stop_flag = 1
             raise e
 
@@ -189,7 +172,6 @@ if __name__ == "__main__":
     )
 
     data["review"] = results
-    data.to_csv("IMDB-Dataset-MideindTranslate-proccessed-nefnir2.csv")
-    # data.to_csv("test2.csv")
+    data.to_csv("IMDB-Dataset-MideindTranslate-proccessed-nefnir.csv")
     end = time.time()
     print(f"Processed in {end-start} seconds.")

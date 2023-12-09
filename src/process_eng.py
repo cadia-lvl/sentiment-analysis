@@ -1,10 +1,5 @@
-import multiprocessing
-import string
 import time
-import dask.dataframe as dd
-from dask.distributed import Client
 import pandas as pd
-from reynir import Greynir
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
@@ -63,18 +58,6 @@ class ENTextNormalizer:
 
 
 if __name__ == "__main__":
-    # client = Client()
-    # data = dd.read_csv("IMDB-Dataset copy.csv")
-    # tn = TextNormalizer()
-    # start = time.time()
-    # data["review"] = data["review"].map_partitions(
-    #     lambda partition: partition.apply(tn.process), meta=("review", "object")
-    # )
-    # data.compute().to_csv("IMDB-Dataset-MideindTranslate-Processed.csv", index=False)
-    # client.close()
-    # end = time.time()
-    # print(f"Processed in {end-start} seconds.")
-
     data = pd.read_csv("IMDB-Dataset.csv")
     review, sentiment = data["review"], data["sentiment"]
     tn = ENTextNormalizer(stopwords.words("english"))
@@ -87,11 +70,3 @@ if __name__ == "__main__":
     data.to_csv("IMDB-Dataset-Processed.csv")
     end = time.time()
     print(f"Processed in {end-start} seconds.")
-
-    # tn = TextNormalizer()
-    # print(
-    #     tn.process(
-    #         0,
-    #         "Þetta er ekki góður texti aaaaaabbbbcdefghijklmnopqr.",
-    #     )
-    # )
