@@ -2,13 +2,14 @@
 
 | Risk                                  | Likelihood (1-5)  | Impact (1-5)  | Responsibility    | Mitigation Strategy |
 |---------------------------------------|-------------------|---------------|-------------------|---------------------|
-| Resource Constraints (Time and Computing Power) | 4       | 5             | Eysteinn          | Prioritize key features and models that are critical to the project. Consider using cloud computing resources. |
-| Training stops/Computer crashes       | 4                 | 4             | Ólafur            | Regular backups and distributed training could mitigate this risk. |
-| Sprint/Project delay                  | 3                 | 5             | Ólafur            | Address the problem in the standup's and frequent reassessments. |
-| Incompatibility of Translation APIs   | 3                 | 3             | Birkir            | Have fallback methods for each API, and make the system modular to easily swap out one service for another. |
-| Classifier Model Inefficiency         | 3                 | 3             | Eysteinn          | Use baseline models for initial testing before using more complex models like BERT, roBERTa, and IceBERT. |
-| Overfitting in Model Training         | 2                 | 4             | Birkir            | Utilize techniques such as cross-validation and dropout layers. |
-| Illness in team                       | 2                 | 4             | Whole Team        | Cross-training and comprehensive documentation can help other team members pick up the slack. Tries not getting other team members sick. |
-| API Rate Limiting or Costs            | 2                 | 3             | Birkir            | Caching translated data and batch processing could help in minimizing the number of API calls. |
-| A team member quits                   | 1                 | 5             | Whole Team        | Having a documented and modular project architecture allows for easier transition of responsibilities. |
-| External Dependency Failures (APIs down) | 1              | 2             | Whole Team        | Have a contingency plan, such as a local translation model otherwise wait and focus on a different task |
+| Presentation Preparation Inadequacy   | 3                 | 5             | Whole Team        | Increase practice sessions, finalize slide deck early, and ensure clear understanding of each part by every team member. |
+| Last-minute Changes or Feedback Integration | 3           | 4             | Ólafur            | Allocate time for last-minute revisions, maintain flexibility in report and presentation content. |
+| Technical Issues with Presentation Equipment | 3          | 4             | Birkir            | Test all equipment prior to the presentation, have a backup plan for technical failures. |
+| Report Completion Delay               | 2                 | 5             | Whole Team        | Focus on the final touches, ensure each section meets quality standards, and set clear deadlines for completion. |
+| Miscommunication Within the Team      | 2                 | 3             | Whole Team        | Enhance communication especially for final report edits and presentation strategies. |
+| Illness in Team During Final Phase    | 2                 | 3             | Whole Team        | Maintain health protocols, ensure backup plans for team member roles in presentation. |
+| Inaccuracy in Reported Results        | 1                 | 5             | Eysteinn          | Final review of results for accuracy, involve another team member in cross-verifying data. |
+| Missing Documentation for Methods     | 1                 | 4             | Birkir            | Final checks to ensure all methods are properly documented. |
+| Data Misinterpretation                | 1                 | 4             | Ólafur            | Final review of data interpretation, cross-check with advisors if necessary. |
+| Formatting and Submission Issues (Report & Presentation) | 1 | 3          | Eysteinn          | Final review of formats, adherence to guidelines, and early submission to avoid last-minute issues. |
+| Technical Issues with Document Sharing/Collaboration Tools | 1 | 2        | Birkir            | Continuation of reliable practices for document sharing and collaboration, with regular backups. |

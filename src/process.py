@@ -164,7 +164,7 @@ if __name__ == "__main__":
         sys.exit()
 
     data = pd.read_csv("IMDB-Dataset-MideindTranslate.csv")
-    review, sentiment = data["review"], data["sentiment"]
+    review = data["review"]
     tn = TextNormalizer(icetagger)
     start = time.time()
     results = Parallel(n_jobs=16, verbose=10)(
