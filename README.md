@@ -110,7 +110,7 @@ This section provides instructions for using the `process.py` script, which perf
 
 1. Run the script:
     - python process.py
-2. When prompted, select the `icetagger.bat` file located in the extracted IceNLP directory (IceNLP-1.5.0\IceNLP\bat\icetagger).
+2. When prompted, select the `icetagger.bat` file located in the extracted IceNLP directory (`IceNLP-1.5.0\IceNLP\bat\icetagger`).
 3. Ensure the dataset file (`IMDB-Dataset-MideindTranslate.csv`) is located in the `Datasets` directory relative to the script.
 4. The script will process the dataset and output the processed data to `Datasets/IMDB-Dataset-MideindTranslate-processed-nefnir.csv`.
 
@@ -158,6 +158,20 @@ To use a different dataset:
 
 ## Baseline Classifiers
 
+This section provides instructions for using the `BaselineClassifiersBinary.ipynb` script, which trains SVC, Logistic Regression and Naive Bayes on English, Icelandic Google and Icelandic Miðeind datasets, it also generates classification reports for each model.
+
+### Prerequisites
+
+-   Python 3.x
+-   PyTorch
+-   Pandas library
+-   Scikit-learn library
+-   Other dependencies: `os`, `time`, `numpy`
+
+### Usage
+
+To into `BaselineClassifiersBinary.ipynb` and run the cells. You have to change the `ICELANDIC_GOOGLE_CSV`, `ICELANDIC_MIDEIND_CSV` and `ENGLISH_CSV` variables to point to the correct datasets. The cell will train and print out the classification reports for each model. It will also show a diagram. You can refer to the next cell if you want to print out the most important features, altough this is not necessary.
+
 ## Transformer Models
 
 This section provides instructions for using the `train.py` script, which trains a transformer model for sentiment analysis.
@@ -193,9 +207,34 @@ To use a different dataset:
 -   The dataset should be in CSV format with 'review' and 'sentiment' columns.
 -   Modify the `dataset_path` variable in the script to match your dataset's filename.
 
-# Style
+## Generating Classification Reports
 
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+This section provides instructions for using the `generate_report.py` script, which generates a classification report for a trained model.
+This is useful mostly for the transformer models, as the baseline classifiers generate their own reports via the same libraries.
+
+This function will call the model and generate a classification report for the model. What it expects is the path to a folder of the model, the device to use,
+the pandas columns to use as X and y, and whether to return the accuracy or the classification report.
+
+### Installation
+
+1. Ensure Python 3.x is installed.
+2. Install the required Python packages:
+    - pip install transformers torch pandas scikit-learn
+
+### Usage
+
+1. Import generate_classification_report.py `import generate_classification_report as gcr`
+2. Load the CSV file with the data to be tested `df = pd.read_csv('IMDB-Dataset-GoogleTranslate.csv')`
+3. Invoke the function call call_model, which takes the parameters
+- X_all: All review columns
+- y_all: All sentiment columns
+- model: The model to be used (This is a path to a file, something like `'./electra-base-google-batch8-remove-noise-model/'`)
+- device: The device to be used (CUDA, cpu)
+- accuracy: Whether to return accuracy or return a classification report
+
+### Example
+
+Example of how to generate a report can be seen in `generate_report.ipynb` - also the `generate_classification_report.py`  `eval_files()` function, which is loading multiple models.
 
 # License
 

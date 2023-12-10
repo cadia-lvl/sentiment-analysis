@@ -96,7 +96,7 @@ class RoBERTaClassificationReport:
 
         return DataLoader(ds, batch_size=batch_size, num_workers=0)
 
-    def generate_report(self) -> str | dict:
+    def generate_report(self, accuracy):
         self.model.eval()
         y_true = []
         y_pred = []
@@ -111,9 +111,11 @@ class RoBERTaClassificationReport:
                 prediction = torch.max(outputs.logits, dim=1)
                 y_true.extend(labels.tolist())
                 y_pred.extend(prediction.indices.tolist())
-        report = classification_report(y_true, y_pred, output_dict=True)
-        acc = accuracy_score(y_true, y_pred)
-        return acc
+        
+        if accuracy:
+            acc = accuracy_score(y_true, y_pred)
+            return acc
+        return classification_report(y_true, y_pred, output_dict=True) # NOTE: can use this if you want to print classification report
 
 
 class DataFrameLoader:
@@ -152,21 +154,19 @@ class DataFrameLoader:
         self.y_test = y_test
 
 
-def call_model(X_all, y_all, folder, device):
+def call_model(X_all, y_all, folder, device, accuracy=True):
     model = AutoModelForSequenceClassification.from_pretrained(folder)
     model.to(device)
     tokenizer = AutoTokenizer.from_pretrained(folder)
     report = RoBERTaClassificationReport(model, tokenizer, X_all, y_all, device)
-    return report.generate_report()
+    return report.generate_report(accuracy)
 
 
 def generate_report(filename, folder, device):
-    print("*" * 50)
     print("Loading model from folder {} using file {}".format(folder, filename))
     dfl = DataFrameLoader(filename)
-
-    pprint(call_model(dfl.X_all, dfl.y_all, folder, device))
-    print("*" * 50)
+    return call_model(dfl.X_all, dfl.y_all, folder, device)
+    
 
 
 def eval_files():
@@ -198,7 +198,7 @@ def eval_files():
     for d in data:
         folder = d["folder"]
         filename = d["filename"]
-        generate_report(filename, folder, device)
+        print(generate_report(filename, folder, device))
 
 
 if __name__ == "__main__":
