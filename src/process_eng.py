@@ -1,10 +1,6 @@
-import multiprocessing
-import string
+import os
 import time
-import dask.dataframe as dd
-from dask.distributed import Client
 import pandas as pd
-from reynir import Greynir
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
@@ -63,19 +59,10 @@ class ENTextNormalizer:
 
 
 if __name__ == "__main__":
-    # client = Client()
-    # data = dd.read_csv("IMDB-Dataset copy.csv")
-    # tn = TextNormalizer()
-    # start = time.time()
-    # data["review"] = data["review"].map_partitions(
-    #     lambda partition: partition.apply(tn.process), meta=("review", "object")
-    # )
-    # data.compute().to_csv("IMDB-Dataset-MideindTranslate-Processed.csv", index=False)
-    # client.close()
-    # end = time.time()
-    # print(f"Processed in {end-start} seconds.")
-
-    data = pd.read_csv("IMDB-Dataset.csv")
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    dataset_path = os.path.join(parent_dir, "Datasets/IMDB-Dataset.csv")
+    data = pd.read_csv(dataset_path)
     review, sentiment = data["review"], data["sentiment"]
     tn = ENTextNormalizer(stopwords.words("english"))
     start = time.time()
@@ -84,14 +71,6 @@ if __name__ == "__main__":
     )
 
     data["review"] = results
-    data.to_csv("IMDB-Dataset-Processed.csv")
+    data.to_csv("Datasets/IMDB-Dataset-Processed.csv")
     end = time.time()
     print(f"Processed in {end-start} seconds.")
-
-    # tn = TextNormalizer()
-    # print(
-    #     tn.process(
-    #         0,
-    #         "Þetta er ekki góður texti aaaaaabbbbcdefghijklmnopqr.",
-    #     )
-    # )
