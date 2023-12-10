@@ -1,31 +1,30 @@
 import html
 import multiprocessing
+import os
 import string
 import sys
 import time
 from tkinter import Tk, filedialog
 import pandas as pd
-from reynir import Greynir
-from nltk.tokenize import word_tokenize
 import tokenizer
 import re
 from joblib import Parallel, delayed
 import subprocess
-from nefnir import Nefnir
+
+# from nefnir import Nefnir
+import nefnir
 from pathlib import Path
 
 stop_flag = 0
 
 
 class TextNormalizer:
-    def __init__(self, icetagger):
+    def __init__(self, icetagger=None):
         self.stop_words = None
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        stop_words_file_path = os.path.join(current_dir, "all_stop_words.txt")
 
-        if __name__ == "__main__":
-            file_path = "src/all_stop_words.txt"
-        else:
-            file_path = "all_stop_words.txt"
-        with open(file_path) as f:
+        with open(stop_words_file_path) as f:
             self.stop_words = f.readlines()
             self.stop_words = [
                 stop_word.replace("\n", "") for stop_word in self.stop_words
@@ -93,29 +92,14 @@ class TextNormalizer:
             print(f"An error occurred: {str(e)}")
 
     def lemmatize(self, tokens, index):
-        n = Nefnir()
+        if self.icetagger is None:
+            return tokens
+
         output = []
         tokens = self.send_word_to_script(" ".join(tokens))
         for token, tag in tokens:
-            output.append(n.lemmatize(token, tag))
+            output.append(nefnir.lemmatize(token, tag))
         return output
-
-    # def lemmatize(self, tokens, index):
-    #     g = Greynir()
-    #     output = []
-    #     for filtered_token in tokens:
-    #         parsed_token = g.parse_single(filtered_token)
-    #         if (
-    #             not parsed_token
-    #             or parsed_token.tree is None
-    #             or parsed_token.lemmas is None
-    #         ):
-    #             output.append(filtered_token)
-    #         else:
-    #             for lemmas in parsed_token.lemmas:
-    #                 output.append(lemmas)
-
-    #     return output
 
     def remove_stop_words(self, txt):
         return " ".join([t for t in txt.split(" ") if t not in self.stop_words])
@@ -158,12 +142,12 @@ class TextNormalizer:
             return
         try:
             print(f"Processing {k} by thread {multiprocessing.current_process().name}")
-            return self.remove_noise(txt)
-            # return self.mark_negation(
-            #     self.lemmatize(self.tokenize(self.remove_stop_words(txt)), k)
-            # )
+            txt = self.remove_noise(txt)
+            return self.mark_negation(
+                self.lemmatize(self.tokenize(self.remove_stop_words(txt)), k)
+            )
         except Exception as e:
-            print(f"Failed to lemmatize {k} with error {e}")
+            print(f"Failed to process {k} with error {e}")
             stop_flag = 1
             raise e
 
@@ -172,25 +156,29 @@ if __name__ == "__main__":
     root = Tk()
     root.withdraw()
 
-    # print("Select the icetagger.bat File")
-    # icetagger = filedialog.askopenfilename(
-    #     title="Select the icetagger.bat File", filetypes=[("bat files", "*.bat")]
-    # )
-    # if not icetagger or not Path(icetagger).exists() or not Path(icetagger).is_file():
-    #     print("Invalid icetagger.bat path")
-    #     sys.exit()
+    print("Select the icetagger.bat File")
+    icetagger = filedialog.askopenfilename(
+        title="Select the icetagger.bat File", filetypes=[("bat files", "*.bat")]
+    )
+    if not icetagger or not Path(icetagger).exists() or not Path(icetagger).is_file():
+        print("Invalid icetagger.bat path")
+        sys.exit()
 
-    data = pd.read_csv("src/icelandic-review-scrapers/data/Hannes-Movie-Reviews.csv")
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    dataset_path = os.path.join(
+        parent_dir, "Datasets/IMDB-Dataset-MideindTranslate.csv"
+    )
+
+    data = pd.read_csv(dataset_path)
     review = data["review"]
-    tn = TextNormalizer(None)
+    tn = TextNormalizer(icetagger)
     start = time.time()
-    results = Parallel(n_jobs=16, verbose=10)(
+    results = Parallel(n_jobs=1, verbose=10)(
         delayed(tn.process)(k, row, stop_flag) for k, row in enumerate(review)
     )
 
     data["review"] = results
-
-    data.to_csv("src/icelandic-review-scrapers/data/Hannes-Movie-Reviews-processed.csv")
-    
+    data.to_csv("Datasets/IMDB-Dataset-MideindTranslate-processed-nefnir.csv")
     end = time.time()
     print(f"Processed in {end-start} seconds.")

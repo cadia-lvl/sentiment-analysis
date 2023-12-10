@@ -58,7 +58,7 @@ def plot_rating_distribution(ratings):
 def main():
     original_csv_path = "../data/original/kvikmyndaryni-reviews.csv"
     destination_path = "../data/median-split/kvikmyndaryni-reviews-with-sentiment.csv"
-    # 4, 7 for imdb split  | 
+    # 4, 7 for imdb split  |
     # 5, 6 for five split  |
     # 6, 7 for median split|
     negative_threshold = 6
@@ -75,7 +75,7 @@ def main():
     write_reviews_with_sentiment(destination_path, reviews_with_sentiment)
 
     print_statistics(ratings)
-    #plot_rating_distribution(ratings)
+    # plot_rating_distribution(ratings)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import csv
 from googletrans import Translator
@@ -6,7 +7,6 @@ import threading
 import logging
 import time
 from pathlib import Path
-from tkinter import Tk, filedialog
 
 logging.basicConfig(level=logging.INFO)
 translator = Translator()
@@ -72,13 +72,10 @@ def save_review(index, review, sentiment, writer, failed_writer):
 
 
 def main():
-    root = Tk()
-    root.withdraw()
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    dataset = os.path.join(parent_dir, "Datasets/IMDB-Dataset.csv")
 
-    print("Select the Dataset File")
-    dataset = filedialog.askopenfilename(
-        title="Select the Dataset File", filetypes=[("CSV files", "*.csv")]
-    )
     if not dataset or not Path(dataset).exists() or not Path(dataset).is_file():
         print("Invalid dataset path")
         return
@@ -92,9 +89,15 @@ def main():
         return
 
     with open(
-        "IMDB-Dataset-GoogleTranslate.csv", "a", newline="", encoding="utf-8"
+        os.path.join(parent_dir, "Datasets/IMDB-Dataset-GoogleTranslate.csv"),
+        "a",
+        newline="",
+        encoding="utf-8",
     ) as trans_file, open(
-        "failed-IMDB-Dataset-GoogleTranslate.csv", "a", newline="", encoding="utf-8"
+        os.path.join(parent_dir, "Datasets/failed-IMDB-Dataset-GoogleTranslate.csv"),
+        "a",
+        newline="",
+        encoding="utf-8",
     ) as failed_file:
         writer = csv.writer(trans_file)
         writer.writerow(["review", "sentiment"])

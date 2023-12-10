@@ -164,3 +164,7 @@ src/aclImdb/
 src/aclImdb_v1.tar.gz
 aclImdb/
 aclImdb_v1.tar.gz
+
+# Models
+Models/
+Logs/
