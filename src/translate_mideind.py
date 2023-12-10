@@ -1,3 +1,4 @@
+import os
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
 import torch
 import pandas as pd
@@ -5,19 +6,18 @@ import csv
 import logging
 import time
 from pathlib import Path
-from tkinter import Tk, filedialog
 import re
 
 logging.basicConfig(level=logging.INFO)
 
 
-def initialize_model(folder):
+def initialize_model():
     device = torch.cuda.current_device() if torch.cuda.is_available() else -1
     tokenizer = AutoTokenizer.from_pretrained(
-        folder, src_lang="en_XX", tgt_lang="is_IS"
+        "mideind/nmt-doc-en-is-2022-10", src_lang="en_XX", tgt_lang="is_IS"
     )
 
-    model = AutoModelForSeq2SeqLM.from_pretrained(folder)
+    model = AutoModelForSeq2SeqLM.from_pretrained("mideind/nmt-doc-en-is-2022-10")
 
     translate = pipeline(
         "translation_XX_to_YY",
@@ -101,25 +101,15 @@ def smart_split(text, tokenizer, limit=128):
 
 
 def main():
-    root = Tk()
-    root.withdraw()
-
-    print("Select the Model Folder")
-    folder = filedialog.askdirectory(title="Select the Model Folder")
-    if not folder or not Path(folder).exists() or not Path(folder).is_dir():
-        print("Invalid path")
-        return
-
     try:
-        translate, tokenizer = initialize_model(folder)
+        translate, tokenizer = initialize_model()
     except Exception:
         print("Invalid model path")
         return
 
-    print("Select the Dataset File")
-    dataset = filedialog.askopenfilename(
-        title="Select the Dataset File", filetypes=[("CSV files", "*.csv")]
-    )
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    dataset = os.path.join(parent_dir, "Datasets/IMDB-Dataset.csv")
     if not dataset or not Path(dataset).exists() or not Path(dataset).is_file():
         print("Invalid dataset path")
         return
@@ -133,9 +123,15 @@ def main():
         return
 
     with open(
-        "IMDB-Dataset-MideindTranslate.csv", "a", newline="", encoding="utf-8"
+        os.path.join(parent_dir, "Datasets/IMDB-Dataset-MideindTranslate.csv"),
+        "a",
+        newline="",
+        encoding="utf-8",
     ) as trans_file, open(
-        "failed-IMDB-Dataset-MideindTranslate.csv", "a", newline="", encoding="utf-8"
+        os.path.join(parent_dir, "Datasets/failed-IMDB-Dataset-MideindTranslate.csv"),
+        "a",
+        newline="",
+        encoding="utf-8",
     ) as failed_file:
         writer = csv.writer(trans_file)
         writer.writerow(["review", "sentiment"])

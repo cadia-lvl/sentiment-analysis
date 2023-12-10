@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 def read_reviews(csv_path):
     with open(csv_path, mode="r", newline="", encoding="utf-8") as file:
         csv_reader = csv.DictReader(file)
-        return list(csv_reader) 
+        return list(csv_reader)
 
 
 def assign_sentiment(reviews, negative_threshold, positive_threshold):
@@ -28,7 +28,13 @@ def assign_sentiment(reviews, negative_threshold, positive_threshold):
 
 def write_reviews_with_sentiment(csv_path, reviews_with_sentiment):
     with open(csv_path, mode="w", newline="", encoding="utf-8") as file:
-        fieldnames = ["num", "id", "review", "rating", "sentiment"] # True fieldnames: ["num", "id", "review", "rating", "sentiment"]
+        fieldnames = [
+            "num",
+            "id",
+            "review",
+            "rating",
+            "sentiment",
+        ]  # True fieldnames: ["num", "id", "review", "rating", "sentiment"]
         csv_writer = csv.DictWriter(file, fieldnames=fieldnames)
         csv_writer.writeheader()
         csv_writer.writerows(reviews_with_sentiment)
@@ -55,7 +61,7 @@ def plot_rating_distribution(ratings):
 def main():
     original_csv_path = "../data/original/Hannes-Movie-Reviews-no-noise.csv"
     new_csv_path = "../data/five-split/hannes-reviews-reviews-with-sentiment.csv"
-    # 4, 7 for imdb split  | 
+    # 4, 7 for imdb split  |
     # 5, 6 for five split  |
     # 6, 7 for median split|
     negative_threshold = 5
@@ -72,7 +78,7 @@ def main():
     write_reviews_with_sentiment(new_csv_path, reviews_with_sentiment)
 
     print_statistics(ratings)
-    #plot_rating_distribution(ratings)
+    # plot_rating_distribution(ratings)
 
 
 if __name__ == "__main__":

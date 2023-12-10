@@ -10,7 +10,9 @@ import tokenizer
 import re
 from joblib import Parallel, delayed
 import subprocess
-from nefnir import Nefnir
+
+# from nefnir import Nefnir
+import nefnir
 from pathlib import Path
 
 stop_flag = 0
@@ -93,11 +95,10 @@ class TextNormalizer:
         if self.icetagger is None:
             return tokens
 
-        n = Nefnir()
         output = []
         tokens = self.send_word_to_script(" ".join(tokens))
         for token, tag in tokens:
-            output.append(n.lemmatize(token, tag))
+            output.append(nefnir.lemmatize(token, tag))
         return output
 
     def remove_stop_words(self, txt):
@@ -163,15 +164,21 @@ if __name__ == "__main__":
         print("Invalid icetagger.bat path")
         sys.exit()
 
-    data = pd.read_csv("IMDB-Dataset-MideindTranslate.csv")
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    dataset_path = os.path.join(
+        parent_dir, "Datasets/IMDB-Dataset-MideindTranslate.csv"
+    )
+
+    data = pd.read_csv(dataset_path)
     review = data["review"]
     tn = TextNormalizer(icetagger)
     start = time.time()
-    results = Parallel(n_jobs=16, verbose=10)(
+    results = Parallel(n_jobs=1, verbose=10)(
         delayed(tn.process)(k, row, stop_flag) for k, row in enumerate(review)
     )
 
     data["review"] = results
-    data.to_csv("IMDB-Dataset-MideindTranslate-proccessed-nefnir.csv")
+    data.to_csv("Datasets/IMDB-Dataset-MideindTranslate-processed-nefnir.csv")
     end = time.time()
     print(f"Processed in {end-start} seconds.")

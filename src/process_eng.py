@@ -1,3 +1,4 @@
+import os
 import time
 import pandas as pd
 import nltk
@@ -58,7 +59,10 @@ class ENTextNormalizer:
 
 
 if __name__ == "__main__":
-    data = pd.read_csv("IMDB-Dataset.csv")
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    dataset_path = os.path.join(parent_dir, "Datasets/IMDB-Dataset.csv")
+    data = pd.read_csv(dataset_path)
     review, sentiment = data["review"], data["sentiment"]
     tn = ENTextNormalizer(stopwords.words("english"))
     start = time.time()
@@ -67,6 +71,6 @@ if __name__ == "__main__":
     )
 
     data["review"] = results
-    data.to_csv("IMDB-Dataset-Processed.csv")
+    data.to_csv("Datasets/IMDB-Dataset-Processed.csv")
     end = time.time()
     print(f"Processed in {end-start} seconds.")

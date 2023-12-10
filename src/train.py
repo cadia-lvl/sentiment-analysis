@@ -1,3 +1,4 @@
+import os
 from sklearn.metrics import f1_score
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from transformers import (
@@ -21,6 +22,7 @@ LEARNING_RATE = 1e-6
 BATCH_SIZE = 8
 
 model_name = "mideind/IceBERT"
+model_save_dir = "Icebert-google-batch8-test-model"
 
 np.random.seed(RANDOM_SEED)
 torch.manual_seed(RANDOM_SEED)
@@ -34,9 +36,11 @@ def tokenize_data(data, tokenizer, max_len=512):
     )
 
 
-# df = pd.read_csv("IMDB-Dataset-GoogleTranslate.csv")
-df = pd.read_csv("IMDB-Dataset-GoogleTranslate.csv")
-# df = pd.read_csv("IMDB-Dataset.csv")
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+dataset_path = os.path.join(parent_dir, "Datasets/IMDB-Dataset-GoogleTranslate.csv")
+
+df = pd.read_csv(dataset_path)
 
 
 def convert(sentiment):
@@ -109,10 +113,10 @@ scheduler = get_linear_schedule_with_warmup(
     optimizer, num_training_steps=total_steps, num_warmup_steps=0
 )
 
-log_dir = "./logs"
+log_dir = os.path.join(parent_dir, "logs")
 
 training_args = TrainingArguments(
-    output_dir="./results/Icebert-google-batch8-test",
+    output_dir=os.path.join(parent_dir, "Models/results/" + model_save_dir),
     num_train_epochs=EPOCHS,
     per_device_train_batch_size=BATCH_SIZE,
     per_device_eval_batch_size=BATCH_SIZE,
@@ -143,5 +147,5 @@ trainer.train()
 results = trainer.evaluate(test_dataset)
 print("test results:", results)
 
-model.save_pretrained("./Icebert-google-batch8-test-model")
-tokenizer.save_pretrained("./Icebert-google-batch8-test-model")
+model.save_pretrained(os.path.join(parent_dir, "Models/" + model_save_dir))
+tokenizer.save_pretrained(os.path.join(parent_dir, "Models/" + model_save_dir))
