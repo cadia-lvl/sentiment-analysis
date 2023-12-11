@@ -110,11 +110,13 @@ class RoBERTaClassificationReport:
                 prediction = torch.max(outputs.logits, dim=1)
                 y_true.extend(labels.tolist())
                 y_pred.extend(prediction.indices.tolist())
-        
+
         if accuracy:
             acc = accuracy_score(y_true, y_pred)
             return acc
-        return classification_report(y_true, y_pred, output_dict=True) # NOTE: can use this if you want to print classification report
+        return classification_report(
+            y_true, y_pred, output_dict=True
+        )  # NOTE: can use this if you want to print classification report
 
 
 class DataFrameLoader:
@@ -165,7 +167,6 @@ def generate_report(filename, folder, device):
     print("Loading model from folder {} using file {}".format(folder, filename))
     dfl = DataFrameLoader(filename)
     return call_model(dfl.X_all, dfl.y_all, folder, device)
-    
 
 
 def eval_files():
