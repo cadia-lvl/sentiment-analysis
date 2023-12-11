@@ -4,6 +4,21 @@
 
 # Instructions
 
+## Installation of Dependencies
+
+To run the scripts, you need to install the dependencies. Follow the steps below to set up your environment.
+
+### Prerequisites
+
+-   Python 3.x (Make sure Python 3 is installed on your system.)
+
+### Installation Steps
+
+1. Ensure Python 3.x is installed.
+2. Install Requirements:
+    - `pip install -r requirements.txt`
+3. Install PyTorch: The CPU version of PyTorch is already specified in the `requirements.txt` file of this project. It's recommended that you use the GPU version of PyTorch, visit the [PyTorch Get Started](https://pytorch.org/get-started/locally/) page, select your preferences, and run the provided installation command.
+
 ## Machine-translate
 
 This section provides instructions for using the machine translation scripts included in this project: `translate_google.py` and `translate_mideind.py`. These scripts are used for translating text data into Icelandic for sentiment analysis.
@@ -21,20 +36,13 @@ This section provides instructions for using the machine translation scripts inc
 -   `googletrans` version 3.1.0a0
 -   Other dependencies: `concurrent.futures`, `threading`, `logging`
 
-##### Installation
-
-1. Ensure Python 3.x is installed.
-2. Install the required Python packages:
-    - pip install pandas
-    - pip install googletrans==3.1.0a0
-
 ##### Usage
 
-1. Run the script:
+1. Ensure the `"IMDB-Dataset.csv"` file is located in the `Datasets` directory.
+2. Run the script:
 
-    - python translate_google.py
+    - `python translate_google.py`
 
-2. Select the CSV file containing the text to be translated when prompted. The file should have columns named 'review' and 'sentiment'.
 3. The script will process the data and output two files in the `Datasets` directory:
     - `IMDB-Dataset-GoogleTranslate.csv`: Contains translated reviews and sentiments.
     - `failed-IMDB-Dataset-GoogleTranslate.csv`: Logs failed translation attempts.
@@ -48,6 +56,8 @@ To use a different dataset:
 -   Modify the script if your dataset columns have different names.
 -   Modify the script's `dataset` variable to match your dataset's filename.
 
+##
+
 #### Using `translate_mideind.py`
 
 ##### Overview
@@ -57,23 +67,22 @@ To use a different dataset:
 ##### Prerequisites
 
 -   Python 3.x
--   `transformers` and `torch` libraries
--   Pandas library
+-   PyTorch
+-   `transformers` library
+-   `Pandas` library
 -   Other dependencies: `re`, `logging`
 
-##### Installation
+###### Note
 
-1. Ensure Python 3.x is installed.
-2. Install the required Python packages:
-    - pip install transformers torch pandas
+-   If you plan to use GPU acceleration with PyTorch, make sure your CUDA version is compatible with the installed PyTorch version.
 
 ##### Usage
 
 1. Run the script:
-    - python translate_mideind.py
-2. Select the folder containing the translation model when prompted.
-3. Select the CSV file containing the text to be translated. The file should have columns named 'review' and 'sentiment'.
-4. The script will process the data and output two files in the `Datasets` directory:
+
+    - `python translate_mideind.py`
+
+2. The script will process the data and output two files in the `Datasets` directory:
     - `IMDB-Dataset-MideindTranslate.csv`: Contains translated reviews and sentiments.
     - `failed-IMDB-Dataset-MideindTranslate.csv`: Logs failed translation attempts.
 
@@ -101,10 +110,7 @@ This section provides instructions for using the `process.py` script, which perf
 
 #### Installation
 
-1. Ensure Python 3.x is installed.
-2. Install the required Python packages:
-    - pip install pandas joblib nefnir
-3. Download IceNLP from [IceNLP GitHub Repository](https://github.com/hrafnl/icenlp) and extract it.
+1. Download IceNLP from [IceNLP GitHub Repository](https://github.com/hrafnl/icenlp) and extract it.
 
 #### Usage
 
@@ -122,6 +128,8 @@ To use a different dataset:
 -   The dataset should have 'review' and 'sentiment' columns.
 -   Modify the `dataset_path` variable in the script to match your dataset's filename.
 
+##
+
 ### Processing English Text
 
 This section provides instructions for using the `process_eng.py` script, which performs text normalization and preprocessing for English text.
@@ -135,10 +143,7 @@ This section provides instructions for using the `process_eng.py` script, which 
 
 #### Installation
 
-1. Ensure Python 3.x is installed.
-2. Install the required Python packages:
-    - pip install pandas nltk joblib
-3. Download necessary NLTK data:
+1. Download necessary NLTK data:
     - python -m nltk.downloader punkt stopwords wordnet
 
 #### Usage
@@ -185,11 +190,9 @@ This section provides instructions for using the `train.py` script, which trains
 -   Scikit-learn library
 -   Other dependencies: `os`, `time`, `numpy`
 
-### Installation
+###### Note
 
-1. Ensure Python 3.x is installed.
-2. Install the required Python packages:
-    - pip install transformers torch pandas scikit-learn
+-   If you plan to use GPU acceleration with PyTorch, make sure your CUDA version is compatible with the installed PyTorch version.
 
 ### Usage
 
@@ -226,15 +229,16 @@ the pandas columns to use as X and y, and whether to return the accuracy or the 
 1. Import generate_classification_report.py `import generate_classification_report as gcr`
 2. Load the CSV file with the data to be tested `df = pd.read_csv('IMDB-Dataset-GoogleTranslate.csv')`
 3. Invoke the function call call_model, which takes the parameters
-- X_all: All review columns
-- y_all: All sentiment columns
-- model: The model to be used (This is a path to a file, something like `'./electra-base-google-batch8-remove-noise-model/'`)
-- device: The device to be used (CUDA, cpu)
-- accuracy: Whether to return accuracy or return a classification report
+
+-   X_all: All review columns
+-   y_all: All sentiment columns
+-   model: The model to be used (This is a path to a file, something like `'./electra-base-google-batch8-remove-noise-model/'`)
+-   device: The device to be used (CUDA, cpu)
+-   accuracy: Whether to return accuracy or return a classification report
 
 ### Example
 
-Example of how to generate a report can be seen in `generate_report.ipynb` - also the `generate_classification_report.py`  `eval_files()` function, which is loading multiple models.
+Example of how to generate a report can be seen in `generate_report.ipynb` - also the `generate_classification_report.py` `eval_files()` function, which is loading multiple models.
 
 # License
 
