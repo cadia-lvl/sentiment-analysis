@@ -21,7 +21,10 @@ EPOCHS = 4
 LEARNING_RATE = 1e-6
 BATCH_SIZE = 8
 
+# model_name = "roberta-base"
 model_name = "mideind/IceBERT"
+# model_name = "jonfd/electra-base-igc-is"
+
 model_save_dir = "Icebert-google-batch8-test-model"
 
 np.random.seed(RANDOM_SEED)

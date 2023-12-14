@@ -4,6 +4,39 @@
 
 # Instructions
 
+## Setting Up a Virtual Environment
+
+To avoid conflicts with other projects or system-wide Python packages, it's recommended to set up a virtual environment for this project. Here's how to do it:
+
+### Prerequisites
+
+-   Python 3.x (Ensure Python 3 is installed on your system.)
+
+### Creating a Virtual Environment
+
+1. **Navigate to Your Project Directory**:
+   Open a terminal or command prompt and navigate to the root directory of this project.
+
+2. **Create a Virtual Environment**:
+   Run the following command to create a virtual environment named `env` (you can choose any name you prefer):
+
+    ```
+    python -m venv env
+    ```
+
+    This command creates a new directory `env` within your project where all dependencies will be installed.
+
+3. **Activate the Virtual Environment**:
+
+-   On **Windows**, run:
+    ```
+    .\env\Scripts\activate
+    ```
+-   On **macOS or Linux**, run:
+    ```
+    source env/bin/activate
+    ```
+
 ## Installation of Dependencies
 
 To run the scripts, you need to install the dependencies. Follow the steps below to set up your environment.
@@ -16,8 +49,10 @@ To run the scripts, you need to install the dependencies. Follow the steps below
 
 1. Ensure Python 3.x is installed.
 2. Install Requirements:
-    - `pip install -r requirements.txt`
-3. Install PyTorch: The CPU version of PyTorch is already specified in the `requirements.txt` file of this project. It's recommended that you use the GPU version of PyTorch, visit the [PyTorch Get Started](https://pytorch.org/get-started/locally/) page, select your preferences, and run the provided installation command.
+    ```
+    pip install -r requirements.txt
+    ```
+3. Install PyTorch: It's **recommended** that you use the GPU version (CUDA) of PyTorch, visit the [PyTorch Get Started](https://pytorch.org/get-started/locally/) page, select your preferences, and run the provided installation command.
 
 ## Machine-translate
 
@@ -41,9 +76,11 @@ This section provides instructions for using the machine translation scripts inc
 1. Ensure the `"IMDB-Dataset.csv"` file is located in the `Datasets` directory.
 2. Run the script:
 
-    - `python translate_google.py`
+    ```
+    python src/translate_google.py
+    ```
 
-3. The script will process the data and output two files in the `Datasets` directory:
+3. The script will translate the data and output two files in the `Datasets` directory:
     - `IMDB-Dataset-GoogleTranslate.csv`: Contains translated reviews and sentiments.
     - `failed-IMDB-Dataset-GoogleTranslate.csv`: Logs failed translation attempts.
 
@@ -80,7 +117,9 @@ To use a different dataset:
 
 1. Run the script:
 
-    - `python translate_mideind.py`
+    ```
+    python src/translate_mideind.py
+    ```
 
 2. The script will process the data and output two files in the `Datasets` directory:
     - `IMDB-Dataset-MideindTranslate.csv`: Contains translated reviews and sentiments.
@@ -115,7 +154,9 @@ This section provides instructions for using the `process.py` script, which perf
 #### Usage
 
 1. Run the script:
-    - python process.py
+    ```
+    python src/process.py
+    ```
 2. When prompted, select the `icetagger.bat` file located in the extracted IceNLP directory (`IceNLP-1.5.0\IceNLP\bat\icetagger`).
 3. Ensure the dataset file (`IMDB-Dataset-MideindTranslate.csv`) is located in the `Datasets` directory relative to the script.
 4. The script will process the dataset and output the processed data to `Datasets/IMDB-Dataset-MideindTranslate-processed-nefnir.csv`.
@@ -144,13 +185,17 @@ This section provides instructions for using the `process_eng.py` script, which 
 #### Installation
 
 1. Download necessary NLTK data:
-    - python -m nltk.downloader punkt stopwords wordnet
+    ```
+    python -m nltk.downloader punkt stopwords wordnet
+    ```
 
 #### Usage
 
-1. Ensure the dataset file (`IMDB-Dataset.csv`) is located in the `Datasets` directory relative to the script.
+1. Ensure the dataset file (`IMDB-Dataset.csv`) is located in the `Datasets` directory.
 2. Run the script:
-    - python process_eng.py
+    ```
+    python src/process_eng.py
+    ```
 3. The script will process the dataset and output the processed data to `Datasets/IMDB-Dataset-Processed.csv`.
 
 #### Custom Dataset
@@ -175,7 +220,7 @@ This section provides instructions for using the `BaselineClassifiersBinary.ipyn
 
 ### Usage
 
-Go into `BaselineClassifiersBinary.ipynb` and run the cells. You have to change the `ICELANDIC_GOOGLE_CSV`, `ICELANDIC_MIDEIND_CSV` and `ENGLISH_CSV` variables to point to the correct datasets. The cell will train and print out the classification reports for each model. It will also show a diagram. You can refer to the next cell if you want to print out the most important features, altough this is not necessary.
+Go into `BaselineClassifiersBinary.ipynb` and run the cells. You have to change the `ICELANDIC_GOOGLE_CSV`, `ICELANDIC_MIDEIND_CSV` and `ENGLISH_CSV` variables to point to the correct datasets. The cell will train and print out the classification reports for each model. It will also show a diagram. You can refer to the next cell if you want to print out the most important features, although this is not necessary.
 
 ## Transformer Models
 
@@ -199,7 +244,9 @@ This section provides instructions for using the `train.py` script, which trains
 1. Place the dataset file (default: `"IMDB-Dataset-GoogleTranslate.csv"`) in the `Datasets` directory relative to the script.
 2. Modify the script if you want to use a different pre-trained model or dataset.
 3. Run the script:
-    - python train.py
+    ```
+    python src/train.py
+    ```
 4. The script will train the model using the specified dataset and save the trained model and tokenizer in the `Models` directory.
 
 ### Custom Dataset
@@ -212,17 +259,11 @@ To use a different dataset:
 
 ## Generating Classification Reports
 
-This section provides instructions for using the `generate_report.py` script, which generates a classification report for a trained model.
+This section provides instructions for using the `generate_report.ipynb` script, which generates a classification report for a trained model.
 This is useful mostly for the transformer models, as the baseline classifiers generate their own reports via the same libraries.
 
 This function will call the model and generate a classification report for the model. What it expects is the path to a folder of the model, the device to use,
 the pandas columns to use as X and y, and whether to return the accuracy or the classification report.
-
-### Installation
-
-1. Ensure Python 3.x is installed.
-2. Install the required Python packages:
-    - pip install transformers torch pandas scikit-learn
 
 ### Usage
 
