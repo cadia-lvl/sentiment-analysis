@@ -1,6 +1,4 @@
-# Viðhorfsgreining á íslenskum texta
-
-(Sentiment-Analysis on Icelandic text)
+# Evaluating Icelandic Sentiment Analysis Models Trained on Translated Data
 
 # Instructions
 
