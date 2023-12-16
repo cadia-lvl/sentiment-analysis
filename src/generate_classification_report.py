@@ -175,7 +175,8 @@ def eval_files():
     gc.collect()
     torch.cuda.empty_cache()
     device = "cuda"
-    filename = "./external-icelandic-reviews/data"
+    # This is an old path, update this to the new folder with your models or use huggingface
+    filename = "./external-icelandic-reviews/data" 
     data = [
         {
             "folder": "./electra-base-mideind-batch8-remove-noise-model/",

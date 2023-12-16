@@ -273,13 +273,19 @@ the pandas columns to use as X and y, and whether to return the accuracy or the 
 
 -   X_all: All review columns
 -   y_all: All sentiment columns
--   model: The model to be used (This is a path to a file, something like `'./electra-base-google-batch8-remove-noise-model/'`)
+-   model: The model to be used (This is a path to a file, something like `./electra-base-google-batch8-remove-noise-model/`) or the path to huggingface `Birkir/electra-base-igc-is-sentiment-analysis-google-translate`)
 -   device: The device to be used (CUDA, cpu)
 -   accuracy: Whether to return accuracy or return a classification report
 
 ### Example
 
 Example of how to generate a report can be seen in `generate_report.ipynb` - also the `generate_classification_report.py` `eval_files()` function, which is loading multiple models.
+
+# URLs
+
+https://github.com/olafurjohannsson/sentiment-analysis/tree/main
+https://huggingface.co/Birkir/electra-base-igc-is-sentiment-analysis-google-translate
+
 
 # License
 
