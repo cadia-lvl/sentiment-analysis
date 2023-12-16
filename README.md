@@ -283,6 +283,7 @@ Example of how to generate a report can be seen in `generate_report.ipynb` - als
 # URLs
 
 https://github.com/olafurjohannsson/sentiment-analysis/tree/main
+
 https://huggingface.co/Birkir/electra-base-igc-is-sentiment-analysis-google-translate
 
 
