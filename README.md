@@ -257,7 +257,8 @@ To use a different dataset:
 
 ## Generating Classification Reports
 
-This section provides instructions for using the `generate_report.ipynb` script, which generates a classification report for a trained model.
+This section provides instructions for using the `generate_report.ipynb` script, which generates a classification report for a trained model. See the pre-trained transformer model at huggingface: https://huggingface.co/Birkir/electra-base-igc-is-sentiment-analysis-google-translate
+
 This is useful mostly for the transformer models, as the baseline classifiers generate their own reports via the same libraries.
 
 This function will call the model and generate a classification report for the model. What it expects is the path to a folder of the model, the device to use,
